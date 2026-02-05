@@ -30,7 +30,7 @@ public class Employee {
     @Column(name = "name", nullable = false, length = 100)
     private String name;
 
-    @Column(name = "email", nullable = false, length = 128)
+    @Column(name = "email", nullable = false, unique = true, length = 128)
     private String email;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -62,7 +62,7 @@ public class Employee {
     private String password; // store salted/hashed only
 
     @Column(name = "is_active", nullable = false)
-    private Boolean isActive = true; // maps TINYINT(1) to Boolean
+    public Boolean isActive = true; // maps TINYINT(1) to Boolean
 
     @CreationTimestamp
     @Column(name = "createdOn", nullable = false, updatable = false)
@@ -71,4 +71,20 @@ public class Employee {
     @UpdateTimestamp
     @Column(name = "updatedOn", nullable = false)
     private LocalDateTime updatedOn;
+
+    public String getPassword() {
+        return password;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public String getRole() {
+        return role;
+    }
 }
