@@ -4,6 +4,8 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+C:\Users\abiswas\projects\lve_tmst_mgmt\src\main\resources\application.yml
+
 ### STS ###
 .apt_generated
 .classpath

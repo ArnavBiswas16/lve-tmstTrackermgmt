@@ -14,7 +14,7 @@ public class LocationController {
     @Autowired
     LocationService locationService;
 
-    @GetMapping("/getAllLocation")
+    @GetMapping("/public/getAllLocation")
     public List<Location> getAllLocation(){
         return locationService.getAllLocation();
     }
