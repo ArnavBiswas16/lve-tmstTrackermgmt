@@ -11,13 +11,13 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 
 @RestController
-@RequestMapping("/api/leaves")
+@RequestMapping("/public/api/leaves")
 @RequiredArgsConstructor
 public class LeaveController {
 
     private final LeaveService leaveService;
 
-    @PostMapping("/public/apply")
+    @PostMapping("/apply")
     public ResponseEntity<LeaveForecastResponse> applyLeave(@Valid @RequestBody LeaveForecastRequest request) {
         LeaveForecastResponse created = leaveService.applyLeave(request);
         return ResponseEntity
