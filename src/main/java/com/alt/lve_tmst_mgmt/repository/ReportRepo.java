@@ -2,6 +2,8 @@ package com.alt.lve_tmst_mgmt.repository;
 
 import com.alt.lve_tmst_mgmt.dto.MonthlyEmployeeReportDto;
 import com.alt.lve_tmst_mgmt.entity.Employee;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -130,14 +132,13 @@ public interface ReportRepo extends JpaRepository<Employee, String>{
             
                                   WHERE e.sow_id = :sowId
                                     AND e.is_active = 1
-            
-                                  ORDER BY e.name;
-            
-            
+                                    ORDER BY name;
+
        """, nativeQuery = true)
-    List<MonthlyEmployeeReportDto> fetchReport(
+    Page<MonthlyEmployeeReportDto> fetchReport(
             @Param("sowId") String sowId,
             @Param("monthStart") LocalDate monthStart,
-            @Param("monthEnd") LocalDate monthEnd
+            @Param("monthEnd") LocalDate monthEnd,
+            Pageable pageable
     );
 }
