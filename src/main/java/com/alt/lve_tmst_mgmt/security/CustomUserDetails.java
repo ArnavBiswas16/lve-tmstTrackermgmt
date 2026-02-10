@@ -16,6 +16,14 @@ public class CustomUserDetails implements UserDetails {
         this.employee = employee;
     }
 
+    public String getEmployeeName() {
+        return employee.getName();
+    }
+
+    public String getEmpId() {
+        return employee.getEmployeeId();
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(
