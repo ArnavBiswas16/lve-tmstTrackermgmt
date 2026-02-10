@@ -87,4 +87,40 @@ public class Employee {
     public String getRole() {
         return role;
     }
+
+    public String getEmployeeId() {
+        return employeeId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Location getLocation() {
+        return location;
+    }
+
+    public Employee getManager() {
+        return manager;
+    }
+
+    public String getSowId() {
+        return sowId;
+    }
+
+    public String getSoeId() {
+        return soeId;
+    }
+
+    public Boolean getActive() {
+        return isActive;
+    }
+
+    public LocalDateTime getCreatedOn() {
+        return createdOn;
+    }
+
+    public LocalDateTime getUpdatedOn() {
+        return updatedOn;
+    }
 }
