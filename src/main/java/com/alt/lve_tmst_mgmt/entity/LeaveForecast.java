@@ -36,8 +36,11 @@ public class LeaveForecast {
     @JoinColumn(name = "leave_type_id", nullable = false, foreignKey = @ForeignKey(name = "fk_lf_leave_type"))
     private LeaveType leaveType;
 
-    @Column(name = "start_date", nullable = false)
-    private LocalDate startDate;
+    @Column(name = "start_date", nullable = false, columnDefinition = "TIMESTAMP")
+    private LocalDateTime startDate;
+
+    @Column(name = "end_date", nullable = false, columnDefinition = "TIMESTAMP")
+    private LocalDateTime endDate;
 
     @Column(name = "comments", length = 255)
     private String comments;
