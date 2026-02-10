@@ -33,4 +33,6 @@ public class Sow {
             foreignKey = @ForeignKey(name = "fk_sow_manager")
     )
     private Employee manager;
+
+
 }
