@@ -35,7 +35,7 @@ public class AuthController {
 
         CustomUserDetails user =
                 (CustomUserDetails) authentication.getPrincipal();
-        return new LoginResponseDto(user.getUsername(), user.getAuthorities().iterator().next().getAuthority(), "Login successful");
+        return new LoginResponseDto(user.getEmpId(), user.getEmployeeName(),user.getUsername(), user.getAuthorities().iterator().next().getAuthority(), "Login successful");
 
     }
 }
