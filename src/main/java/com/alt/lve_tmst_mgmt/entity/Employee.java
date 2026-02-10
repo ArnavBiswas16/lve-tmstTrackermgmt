@@ -65,11 +65,11 @@ public class Employee {
     public Boolean isActive = true; // maps TINYINT(1) to Boolean
 
     @CreationTimestamp
-    @Column(name = "createdOn", nullable = false, updatable = false)
+    @Column(name = "created_on", insertable = false, updatable = false)
     private LocalDateTime createdOn;
 
     @UpdateTimestamp
-    @Column(name = "updatedOn", nullable = false)
+    @Column(name = "updated_on", insertable = false, updatable = false)
     private LocalDateTime updatedOn;
 
     public String getPassword() {

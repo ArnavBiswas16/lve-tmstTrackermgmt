@@ -12,16 +12,11 @@ import java.util.List;
 public class TimesheetController {
 @Autowired
      TimesheetService timesheetService;
-
-
-
-    // GET all
     @GetMapping()
     public List<Timesheet> getAllTimesheets() {
         return timesheetService.getAll();
     }
 
-    // POST create
     @PostMapping
     public Timesheet createTimesheet(@RequestBody Timesheet timesheet) {
         return timesheetService.create(timesheet);
