@@ -1,40 +1,32 @@
 package com.alt.lve_tmst_mgmt.entity;
 
-
+import com.alt.lve_tmst_mgmt.dto.ComplianceId;
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "MONTHLY_COMPLIANCE")
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString(exclude = "employee")
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@Access(AccessType.FIELD)
 public class MonthlyCompliance {
 
-    @Id
-    @Column(name = "employee_id", length = 36, nullable = false, updatable = false)
-    @EqualsAndHashCode.Include
-    private String employeeId;
-
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @MapsId
-    @JoinColumn(name = "employee_id", nullable = false, foreignKey = @ForeignKey(name = "fk_mc_employee"))
-    private Employee employee;
+    @EmbeddedId
+    private ComplianceId id;
 
     @Column(name = "pts_saved", nullable = false)
-    private Boolean ptsSaved;
+    private boolean ptsSaved;
 
     @Column(name = "cofy_update", nullable = false)
-    private Boolean cofyUpdate;
+    private boolean cofyUpdate;
 
     @Column(name = "citi_training", nullable = false)
-    private Boolean citiTraining;
+    private boolean citiTraining;
 
-    @Column(name = "updated_at", nullable = false, insertable = false, updatable = false)
+    @Column(name = "updated_at", insertable = false, updatable = false)
     private LocalDateTime updatedAt;
 }
