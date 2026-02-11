@@ -1,16 +1,20 @@
 package com.alt.lve_tmst_mgmt.controller;
 
+import com.alt.lve_tmst_mgmt.dto.SaveTimesheetRequest;
+import com.alt.lve_tmst_mgmt.dto.SaveTimesheetResponse;
 import com.alt.lve_tmst_mgmt.entity.Timesheet;
 import com.alt.lve_tmst_mgmt.service.TimesheetService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/timesheets")
+@RequestMapping("public/timesheets")
 public class TimesheetController {
-@Autowired
+     @Autowired
      TimesheetService timesheetService;
 
 
@@ -22,8 +26,11 @@ public class TimesheetController {
     }
 
     // POST create
-    @PostMapping
-    public Timesheet createTimesheet(@RequestBody Timesheet timesheet) {
-        return timesheetService.create(timesheet);
+
+    @PostMapping("/save")
+    @ResponseStatus(HttpStatus.OK)
+    public SaveTimesheetResponse save(@Valid @RequestBody SaveTimesheetRequest request) {
+        return timesheetService.save(request);
     }
+
 }

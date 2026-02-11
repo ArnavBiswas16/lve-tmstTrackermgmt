@@ -9,8 +9,7 @@ import java.time.LocalDateTime;
 @Table(
         name = "LEAVE_FORECAST",
         indexes = {
-                @Index(name = "idx_lf_employee", columnList = "employee_id"),
-                @Index(name = "idx_lf_leave_type", columnList = "leave_type_id")
+                @Index(name = "idx_lf_employee", columnList = "employee_id")
         }
 )
 @Getter
@@ -18,7 +17,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString(exclude = {"employee", "leaveType"})
+@ToString(exclude = {"employee"})
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class LeaveForecast {
 
@@ -32,15 +31,8 @@ public class LeaveForecast {
     @JoinColumn(name = "employee_id", nullable = false, foreignKey = @ForeignKey(name = "fk_lf_employee"))
     private Employee employee;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "leave_type_id", nullable = false, foreignKey = @ForeignKey(name = "fk_lf_leave_type"))
-    private LeaveType leaveType;
-
-    @Column(name = "start_date", nullable = false)
+    @Column(name = "leave_date", nullable = false)
     private LocalDate startDate;
-
-    @Column(name = "comments", length = 255)
-    private String comments;
 
     @Column(name = "last_updated_at", nullable = false, insertable = false, updatable = false)
     private LocalDateTime lastUpdatedAt;
