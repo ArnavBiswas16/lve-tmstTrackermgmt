@@ -1,6 +1,4 @@
 package com.alt.lve_tmst_mgmt.dto;
-
-
 import jakarta.persistence.*;
 import lombok.*;
 
