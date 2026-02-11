@@ -9,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/compliance")
+@RequestMapping("/public/compliance")
 @RequiredArgsConstructor
 public class ComplianceController {
 
@@ -19,5 +19,13 @@ public class ComplianceController {
     public ResponseEntity<SaveComplianceResponse> saveCompliance(
             @Valid @RequestBody SaveComplianceRequest request) {
         return ResponseEntity.ok(service.saveCompliance(request));
+    }
+
+    @GetMapping
+    public ResponseEntity<SaveComplianceResponse> getCompliance(
+            @RequestParam String userId,
+            @RequestParam String month) {
+
+        return ResponseEntity.ok(service.getCompliance(userId, month));
     }
 }

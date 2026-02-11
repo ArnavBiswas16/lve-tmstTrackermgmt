@@ -6,4 +6,6 @@ import com.alt.lve_tmst_mgmt.dto.SaveComplianceResponse;
 
 public interface ComplianceService {
     SaveComplianceResponse saveCompliance(SaveComplianceRequest req);
+    SaveComplianceResponse getCompliance(String userId, String month);
+
 }
