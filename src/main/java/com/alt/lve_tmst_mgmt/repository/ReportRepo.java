@@ -23,6 +23,7 @@ public interface ReportRepo extends JpaRepository<Employee, String>{
                                       e.role,
                                       e.soe_id,
                                       loc.city AS location,
+                                      e.sow_id,
                                       esa.project_startdate AS assignmentStartDate,
                                       (
                                           SELECT COALESCE(

@@ -11,6 +11,7 @@ public class MonthlyEmployeeReportDto {
     private String role;
     private String soeId;
     private String location;
+    private String sowId;
     private java.sql.Date assignmentStartDate;
 
     private String timesheets;          // JSON_ARRAYAGG(...) AS timesheets
@@ -34,6 +35,7 @@ public class MonthlyEmployeeReportDto {
             String role,
             String soeId,
             String location,
+            String sowId,
             java.sql.Date assignmentStartDate,
             String timesheets,
             String leaves,
@@ -53,6 +55,7 @@ public class MonthlyEmployeeReportDto {
         this.role = role;
         this.soeId = soeId;
         this.location = location;
+        this.sowId = sowId;
         this.assignmentStartDate = assignmentStartDate;
         this.timesheets = timesheets;
         this.leaves = leaves;
@@ -209,6 +212,14 @@ public class MonthlyEmployeeReportDto {
 
     public void setCitiTraining(Boolean citiTraining) {
         this.citiTraining = citiTraining;
+    }
+
+    public String getSowId() {
+        return sowId;
+    }
+
+    public void setSowId(String sowId) {
+        this.sowId = sowId;
     }
 
     // getters and setters ...
