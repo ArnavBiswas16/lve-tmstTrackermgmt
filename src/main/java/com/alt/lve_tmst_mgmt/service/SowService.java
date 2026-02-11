@@ -7,4 +7,6 @@ import java.util.List;
 public interface SowService {
     List<SowDto> getAllSows();
     List<SowDto> getSowsByManagerId(String managerId);
+    SowDto createSow(SowDto request);
+
 }

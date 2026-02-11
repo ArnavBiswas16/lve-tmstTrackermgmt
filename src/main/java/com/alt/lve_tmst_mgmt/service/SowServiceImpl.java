@@ -3,6 +3,7 @@ package com.alt.lve_tmst_mgmt.service;
 import com.alt.lve_tmst_mgmt.dto.SowDto;
 import com.alt.lve_tmst_mgmt.entity.Employee;
 import com.alt.lve_tmst_mgmt.entity.Sow;
+import com.alt.lve_tmst_mgmt.repository.EmployeeRepository;
 import com.alt.lve_tmst_mgmt.repository.SowRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,8 @@ import java.util.stream.Collectors;
 public class SowServiceImpl implements SowService {
 
     private final SowRepository sowRepository;
+    private final EmployeeRepository employeeRepository;
+
 
     @Override
     @Transactional(readOnly = true)
@@ -47,4 +50,23 @@ public class SowServiceImpl implements SowService {
                 .managerId(mgrId)
                 .build();
     }
+    @Override
+    @Transactional
+    public SowDto createSow(SowDto request) {
+
+        Employee manager = employeeRepository.findById(request.getManagerId())
+                .orElseThrow(() ->
+                        new RuntimeException("Manager not found: " + request.getManagerId()));
+
+        Sow sow = Sow.builder()
+                .sowId(request.getSowId())
+                .sowName(request.getSowName())
+                .manager(manager)
+                .build();
+
+        Sow saved = sowRepository.save(sow);
+
+        return toDto(saved);
+    }
+
 }
