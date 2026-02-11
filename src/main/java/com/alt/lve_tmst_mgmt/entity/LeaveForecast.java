@@ -32,10 +32,6 @@ public class LeaveForecast {
     @JoinColumn(name = "employee_id", nullable = false, foreignKey = @ForeignKey(name = "fk_lf_employee"))
     private Employee employee;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "leave_type_id", nullable = false, foreignKey = @ForeignKey(name = "fk_lf_leave_type"))
-    private LeaveType leaveType;
-
     @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
 
