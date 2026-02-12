@@ -8,6 +8,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+// Added for logging
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @RestController
 public class LocationController {
 
@@ -15,7 +19,13 @@ public class LocationController {
     LocationService locationService;
 
     @GetMapping("/public/getAllLocation")
-    public List<Location> getAllLocation(){
-        return locationService.getAllLocation();
+    public List<Location> getAllLocation() {
+
+        log.info("GET /public/getAllLocation - fetching all locations");
+        List<Location> locations = locationService.getAllLocation();
+        log.info("GET /public/getAllLocation - fetched {} locations",
+                (locations != null ? locations.size() : 0));
+
+        return locations;
     }
 }

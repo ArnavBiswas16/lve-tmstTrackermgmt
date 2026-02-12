@@ -7,19 +7,35 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+// --- Logging (added) ---
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @RestController
 @RequestMapping("/api/history-timesheets")
 public class HistoryTimeSheetController {
+
     @Autowired
     HistoryTimeSheetService service;
 
     @GetMapping
     public List<HistoryTimesheet> getAllHistoryTimeSheets() {
-        return service.getAll();
+        log.info("history-timesheets - fetching all history timesheets");
+        List<HistoryTimesheet> result = service.getAll();
+        log.info("history-timesheets - fetched {} records", (result != null ? result.size() : 0));
+        return result;
     }
 
     @PostMapping
     public HistoryTimesheet createHistoryTimeSheet(@RequestBody HistoryTimesheet historyTimeSheet) {
-        return service.create(historyTimeSheet);
+        log.info("history-timesheets - creating history timesheet (employeeId={}, workDate={})",
+                (historyTimeSheet != null && historyTimeSheet.getEmployee() != null
+                        ? historyTimeSheet.getEmployee().getEmployeeId() : null),
+                (historyTimeSheet != null ? historyTimeSheet.getWorkDate() : null));
+
+        HistoryTimesheet created = service.create(historyTimeSheet);
+
+        log.info("history-timesheets - created history timesheet successfully");
+        return created;
     }
 }

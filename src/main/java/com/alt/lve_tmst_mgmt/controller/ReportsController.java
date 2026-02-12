@@ -13,6 +13,10 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
 
+// Added for logging
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @RestController
 @RequestMapping
 public class ReportsController {
@@ -27,11 +31,21 @@ public class ReportsController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
+        log.info("GET /public/reports/monthly - Request received for sowId={}, month={}, page={}, size={}",
+                sowId, month, page, size);
+
         LocalDate start = month.atDay(1);
         LocalDate end = month.atEndOfMonth();
 
+        log.info("Computed date range for monthly report: start={}, end={}", start, end);
 
-        return reportService.fetchReport(sowId, start, end, page, size);
+        Page<MonthlyEmployeeReportDto> report =
+                reportService.fetchReport(sowId, start, end, page, size);
+
+        log.info("Monthly report generated for sowId={} with {} records",
+                sowId, (report != null ? report.getTotalElements() : 0));
+
+        return report;
     }
 
 }
