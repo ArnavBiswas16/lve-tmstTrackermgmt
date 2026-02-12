@@ -55,9 +55,9 @@ class ComplianceServiceImplTest {
         assertNotNull(response);
         assertEquals("EMP001", response.getUserId());
         assertEquals("2025-02", response.getMonth());
-        assertTrue(response.getPts());
-        assertFalse(response.getCofy());
-        assertTrue(response.getCitiTraining());
+        assertTrue(response.isPts());
+        assertFalse(response.isCofy());
+        assertTrue(response.isCitiTraining());
 
         verify(mcRepository, times(1))
                 .upsert(eq("EMP001"),
@@ -96,9 +96,9 @@ class ComplianceServiceImplTest {
         assertNotNull(response);
         assertEquals("EMP001", response.getUserId());
         assertEquals("2025-02", response.getMonth());
-        assertTrue(response.getPts());
-        assertFalse(response.getCofy());
-        assertTrue(response.getCitiTraining());
+        assertTrue(response.isPts());
+        assertFalse(response.isCofy());
+        assertTrue(response.isCitiTraining());
     }
 
     @Test
