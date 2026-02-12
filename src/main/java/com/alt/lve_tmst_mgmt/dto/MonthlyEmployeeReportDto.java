@@ -1,8 +1,10 @@
 package com.alt.lve_tmst_mgmt.dto;
 
+import lombok.NoArgsConstructor;
+
 import java.math.BigDecimal;
 import java.sql.Timestamp;
-
+@NoArgsConstructor
 public class MonthlyEmployeeReportDto {
 
     private String employeeId;
