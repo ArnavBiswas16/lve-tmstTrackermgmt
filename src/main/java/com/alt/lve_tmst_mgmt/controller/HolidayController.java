@@ -8,6 +8,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+// Added for logging
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @RestController
 public class HolidayController {
 
@@ -15,9 +19,16 @@ public class HolidayController {
     HolidayService holidayService;
 
     @GetMapping("/public/getAllHoliday")
-    public List<HolidayResponse> getAllHoliday(){
-        return holidayService.getAllHoliday();
-    }
+    public List<HolidayResponse> getAllHoliday() {
 
+        log.info("GET /public/getAllHoliday - fetching all holidays");
+
+        List<HolidayResponse> holidays = holidayService.getAllHoliday();
+
+        log.info("GET /public/getAllHoliday - fetched {} holidays",
+                (holidays != null ? holidays.size() : 0));
+
+        return holidays;
+    }
 
 }
