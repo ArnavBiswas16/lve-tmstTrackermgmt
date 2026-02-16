@@ -4,7 +4,7 @@ import com.alt.lve_tmst_mgmt.entity.Employee;
 import com.alt.lve_tmst_mgmt.entity.LeaveForecast;
 import com.alt.lve_tmst_mgmt.dto.LeaveForecastRequest;
 import com.alt.lve_tmst_mgmt.dto.LeaveForecastResponse;
-import com.alt.lve_tmst_mgmt.repository.EmployeeRepo;
+import com.alt.lve_tmst_mgmt.repository.EmployeeRepository;
 import com.alt.lve_tmst_mgmt.repository.LeaveForecastRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class LeaveService {
 
-    private final EmployeeRepo employeeRepository;
+    private final EmployeeRepository employeeRepository;
     private final LeaveForecastRepo leaveForecastRepository;
 
     @Transactional

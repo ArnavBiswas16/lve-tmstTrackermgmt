@@ -4,7 +4,7 @@ import com.alt.lve_tmst_mgmt.dto.LeaveForecastRequest;
 import com.alt.lve_tmst_mgmt.dto.LeaveForecastResponse;
 import com.alt.lve_tmst_mgmt.entity.Employee;
 import com.alt.lve_tmst_mgmt.entity.LeaveForecast;
-import com.alt.lve_tmst_mgmt.repository.EmployeeRepo;
+import com.alt.lve_tmst_mgmt.repository.EmployeeRepository;
 import com.alt.lve_tmst_mgmt.repository.LeaveForecastRepo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,7 +21,7 @@ import static org.mockito.Mockito.*;
 class LeaveServiceTest {
 
     @Mock
-    private EmployeeRepo employeeRepo;
+    private EmployeeRepository employeeRepo;
 
     @Mock
     private LeaveForecastRepo leaveForecastRepo;
