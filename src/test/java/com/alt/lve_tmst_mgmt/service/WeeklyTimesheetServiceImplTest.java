@@ -1,7 +1,6 @@
 package com.alt.lve_tmst_mgmt.service;
 
 import com.alt.lve_tmst_mgmt.entity.WeeklyTimesheet;
-import com.alt.lve_tmst_mgmt.repository.WeeklyTimesheetRepo;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
