@@ -56,7 +56,6 @@ class LeaveServiceTest {
         LeaveForecast savedLeave = LeaveForecast.builder()
                 .leaveId(100)
                 .employee(mockEmployee)
-                .comments(request.getComments())
                 .build();
 
         when(employeeRepo.findById("EMP001")).thenReturn(Optional.of(mockEmployee));
@@ -67,7 +66,6 @@ class LeaveServiceTest {
         assertNotNull(response);
         assertEquals(100, response.getLeaveId());
         assertEquals("EMP001", response.getEmployeeId());
-        assertEquals("Personal leave", response.getComments());
 
         verify(employeeRepo, times(1)).findById("EMP001");
         verify(leaveForecastRepo, times(1)).save(any(LeaveForecast.class));

@@ -1,8 +1,12 @@
 package com.alt.lve_tmst_mgmt.controller;
 
+import com.alt.lve_tmst_mgmt.dto.SaveTimesheetRequest;
+import com.alt.lve_tmst_mgmt.dto.SaveTimesheetResponse;
 import com.alt.lve_tmst_mgmt.entity.Timesheet;
 import com.alt.lve_tmst_mgmt.service.TimesheetService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -12,11 +16,10 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/timesheets")
+@RequestMapping("public/timesheets")
 public class TimesheetController {
-
-    @Autowired
-    TimesheetService timesheetService;
+     @Autowired
+     TimesheetService timesheetService;
 
     @GetMapping()
     public List<Timesheet> getAllTimesheets() {
@@ -28,16 +31,12 @@ public class TimesheetController {
         return list;
     }
 
-    @PostMapping
-    public Timesheet createTimesheet(@RequestBody Timesheet timesheet) {
-        log.info("POST timesheets - creating timesheet for employeeId={}, workDate={}",
-                (timesheet != null && timesheet.getEmployee() != null
-                        ? timesheet.getEmployee().getEmployeeId() : null),
-                (timesheet != null ? timesheet.getWorkDate() : null));
+    // POST create
 
-        Timesheet created = timesheetService.create(timesheet);
-        log.info("POST timesheets - created timesheet successfully");
-
-        return created;
+    @PostMapping("/save")
+    @ResponseStatus(HttpStatus.OK)
+    public SaveTimesheetResponse save(@Valid @RequestBody SaveTimesheetRequest request) {
+        return timesheetService.save(request);
     }
+
 }

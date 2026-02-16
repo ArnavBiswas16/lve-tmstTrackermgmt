@@ -4,6 +4,7 @@ import com.alt.lve_tmst_mgmt.Exceptions.ResourceNotFoundException;
 import com.alt.lve_tmst_mgmt.dto.ComplianceId;
 import com.alt.lve_tmst_mgmt.dto.SaveComplianceRequest;
 import com.alt.lve_tmst_mgmt.dto.SaveComplianceResponse;
+import com.alt.lve_tmst_mgmt.entity.MonthlyCompliance;   // <-- make sure this import exists
 import com.alt.lve_tmst_mgmt.repository.EmployeeRepository;
 import com.alt.lve_tmst_mgmt.repository.MonthlyComplianceRepository;
 
@@ -48,6 +49,7 @@ public class ComplianceServiceImpl implements ComplianceService {
                 req.getCofy(),
                 req.getCitiTraining()
         );
+
         log.info("saveCompliance() - Upserted compliance for userId={} monthDate={}", userId, monthDate);
 
         SaveComplianceResponse response = SaveComplianceResponse.builder()
@@ -79,9 +81,15 @@ public class ComplianceServiceImpl implements ComplianceService {
 
         ComplianceId id = new ComplianceId(userId, monthDate);
 
-        var compliance = mcRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Compliance not found for userId: " + userId + " and month: " + month));
+        MonthlyCompliance compliance = mcRepository.findById(id)
+                .orElseThrow(new java.util.function.Supplier<ResourceNotFoundException>() {
+                    @Override
+                    public ResourceNotFoundException get() {
+                        return new ResourceNotFoundException(
+                                "Compliance not found for userId: " + userId + " and month: " + month);
+                    }
+                });
+
         log.info("getCompliance() - Found compliance record for userId={} monthDate={}", userId, monthDate);
 
         SaveComplianceResponse response = SaveComplianceResponse.builder()

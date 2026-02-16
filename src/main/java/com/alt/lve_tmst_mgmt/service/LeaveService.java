@@ -25,7 +25,6 @@ public class LeaveService {
         LeaveForecast lf = LeaveForecast.builder()
                 .employee(employee)
                 .startDate(req.getStartDate().toLocalDate())
-                .comments(req.getComments())
                 .build();
 
         LeaveForecast saved = leaveForecastRepository.save(lf);
@@ -33,7 +32,6 @@ public class LeaveService {
         return LeaveForecastResponse.builder()
                 .leaveId(saved.getLeaveId())
                 .employeeId(saved.getEmployee().getEmployeeId())
-                .comments(saved.getComments())
                 .build();
     }
 }
