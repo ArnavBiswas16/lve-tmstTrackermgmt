@@ -2,6 +2,7 @@ package com.alt.lve_tmst_mgmt.service;
 
 import com.alt.lve_tmst_mgmt.entity.WeeklyTimesheet;
 
+import com.alt.lve_tmst_mgmt.repository.WeeklyTimesheetRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -18,7 +19,7 @@ import static org.mockito.Mockito.*;
 class WeeklyTimesheetServiceImplTest {
 
     @Mock
-    private WeeklyTimesheetRepo weeklyTimesheetRepo;
+    private WeeklyTimesheetRepository weeklyTimesheetRepo;
 
     @InjectMocks
     private WeeklyTimesheetServiceImpl weeklyTimesheetService;

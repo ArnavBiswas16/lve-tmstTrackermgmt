@@ -2,11 +2,14 @@ package com.alt.lve_tmst_mgmt.controller;
 
 import com.alt.lve_tmst_mgmt.dto.SaveTimesheetRequest;
 import com.alt.lve_tmst_mgmt.dto.SaveTimesheetResponse;
+import com.alt.lve_tmst_mgmt.dto.TimesheetRequestDTO;
 import com.alt.lve_tmst_mgmt.entity.Timesheet;
+import com.alt.lve_tmst_mgmt.service.MonthlyTimesheetService;
 import com.alt.lve_tmst_mgmt.service.TimesheetService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,7 +23,17 @@ import lombok.extern.slf4j.Slf4j;
 public class TimesheetController {
      @Autowired
      TimesheetService timesheetService;
+     @Autowired
+    private  MonthlyTimesheetService service;
 
+    @PostMapping("/save")
+    public ResponseEntity<String> saveTimesheet(
+            @RequestBody TimesheetRequestDTO request) {
+
+        service.saveTimesheet(request);
+
+        return ResponseEntity.ok("Timesheet saved successfully");
+    }
     @GetMapping()
     public List<Timesheet> getAllTimesheets() {
         log.info("GET timesheets - fetching all timesheets");
@@ -33,10 +46,6 @@ public class TimesheetController {
 
     // POST create
 
-    @PostMapping("/save")
-    @ResponseStatus(HttpStatus.OK)
-    public SaveTimesheetResponse save(@Valid @RequestBody SaveTimesheetRequest request) {
-        return timesheetService.save(request);
-    }
+
 
 }
