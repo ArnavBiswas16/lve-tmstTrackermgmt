@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -154,5 +155,12 @@ public class TimesheetServiceImpl implements TimesheetService {
         log.info("Timesheet save completed successfully for employeeId={}", empId);
 
         return new SaveTimesheetResponse(empId, "success");
+    }
+
+    @Override
+    public BigDecimal getTotalForcastedHours(String userId, LocalDate start, LocalDate end) {
+
+
+        return timesheetRepo.getTotalHoursForMonth(userId, start,end);
     }
 }

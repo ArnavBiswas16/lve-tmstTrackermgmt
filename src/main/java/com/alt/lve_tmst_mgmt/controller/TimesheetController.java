@@ -12,7 +12,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
+import java.util.Map;
 
 // Added logging
 import lombok.extern.slf4j.Slf4j;
@@ -44,8 +48,19 @@ public class TimesheetController {
         return list;
     }
 
-    // POST create
+    @GetMapping("/getTotalForecastedHours")
+    public ResponseEntity<Map<String, BigDecimal>> getTotalForecastedHours(
+            @RequestParam String userId,
+            @RequestParam YearMonth month) {
 
+        LocalDate start = month.atDay(1);
+        LocalDate end = month.atEndOfMonth();
 
+        BigDecimal total = timesheetService
+                .getTotalForcastedHours(userId, start, end);
 
+        return ResponseEntity.ok(
+                Map.of("totalHours", total)
+        );
+    }
 }

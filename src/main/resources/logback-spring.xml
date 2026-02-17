@@ -3,7 +3,7 @@
 
     <!-- ===== App identity & directories ===== -->
     <property name="APP_NAME" value="timesheet-management"/>
-    <property name="LOG_DIR" value="C:/Users/pavsingh/Repo/logs"/>
+    <property name="LOG_DIR" value="C:/Users/abiswas/projects/lve_tmst/logs"/>
 
     <!-- ===== Log pattern (simple, clean) ===== -->
     <property name="PATTERN"
