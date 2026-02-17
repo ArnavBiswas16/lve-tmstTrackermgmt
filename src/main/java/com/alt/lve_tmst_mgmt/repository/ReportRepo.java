@@ -44,16 +44,14 @@ public interface ReportRepo extends JpaRepository<Employee, String>{
                                           SELECT COALESCE(
                                               JSON_ARRAYAGG(
                                                   JSON_OBJECT(
-                                                      'startDate', lf.start_date,
-                                                      'leaveTypeId', lf.leave_type_id,
-                                                      'comments', lf.comments
+                                                      'startDate', lf.leave_date
                                                   )
                                               ),
                                               JSON_ARRAY()
                                           )
                                           FROM leave_forecast lf
                                           WHERE lf.employee_id = e.employee_id
-                                            AND lf.start_date BETWEEN :monthStart AND :monthEnd
+                                            AND lf.leave_date BETWEEN :monthStart AND :monthEnd
                                       ) AS leaves,
             
                                       (
@@ -83,7 +81,7 @@ public interface ReportRepo extends JpaRepository<Employee, String>{
                                           SELECT COUNT(*)
                                           FROM leave_forecast lf
                                           WHERE lf.employee_id = e.employee_id
-                                            AND lf.start_date BETWEEN :monthStart AND :monthEnd
+                                            AND lf.leave_date BETWEEN :monthStart AND :monthEnd
                                       ) AS numberOfLeaves,
             
                                       (
@@ -106,7 +104,7 @@ public interface ReportRepo extends JpaRepository<Employee, String>{
                                               JSON_ARRAYAGG(
                                                   JSON_OBJECT(
                                                       'weekStart', wt.week_start_date,
-                                                      'hours', wt.total_hours  -- fixed column name from weekly_timesheet
+                                                      'hours', wt.total_hours  
                                                   )
                                               ),
                                               JSON_ARRAY()
