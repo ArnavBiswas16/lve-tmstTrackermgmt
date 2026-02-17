@@ -42,13 +42,11 @@ public interface UserDashBoardRepo extends JpaRepository<Employee, String> {
                           employee_id,
                           JSON_ARRAYAGG(
                               JSON_OBJECT(
-                                  'startDate', start_date,
-                                  'leaveTypeId', leave_type_id,
-                                  'comments', comments
+                                  'startDate', leave_date
                               )
                           ) AS leaves
                       FROM leave_forecast
-                      WHERE start_date BETWEEN :monthStart AND :monthEnd
+                      WHERE leave_date BETWEEN :monthStart AND :monthEnd
                       GROUP BY employee_id
                   ) lf ON lf.employee_id = e.employee_id
         
