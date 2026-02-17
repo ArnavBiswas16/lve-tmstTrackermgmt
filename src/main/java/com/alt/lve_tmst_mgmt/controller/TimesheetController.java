@@ -27,12 +27,12 @@ public class TimesheetController {
     private  MonthlyTimesheetService service;
 
     @PostMapping("/save")
-    public ResponseEntity<String> saveTimesheet(
+    public ResponseEntity<TimesheetRequestDTO> saveTimesheet(
             @RequestBody TimesheetRequestDTO request) {
 
         service.saveTimesheet(request);
 
-        return ResponseEntity.ok("Timesheet saved successfully");
+        return ResponseEntity.ok(request);
     }
     @GetMapping()
     public List<Timesheet> getAllTimesheets() {
