@@ -19,21 +19,15 @@ public class UserDashBoardServiceImpl implements UserDashBoardService{
     }
 
     @Override
-    public Page<UserDashBoardDto> fetchDashBoard(String userId, LocalDate monthStart, LocalDate monthEnd, int page, int size) {
+    public UserDashBoardDto fetchDashBoard(String userId, LocalDate monthStart, LocalDate monthEnd) {
 
 
         validateInputs(userId, monthStart, monthEnd);
 
-        Pageable pageable = PageRequest.of(
-                page,
-                size
-        );
-
         return userDashBoardRepo.fetchDashBoard(
                 userId,
                 monthStart,
-                monthEnd,
-                pageable
+                monthEnd
         );
     }
 

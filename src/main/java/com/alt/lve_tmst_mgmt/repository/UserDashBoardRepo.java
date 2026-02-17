@@ -72,11 +72,10 @@ public interface UserDashBoardRepo extends JpaRepository<Employee, String> {
             
             
        """, nativeQuery = true)
-    Page<UserDashBoardDto> fetchDashBoard(
+    UserDashBoardDto fetchDashBoard(
             @Param("userId") String userId,
             @Param("monthStart") LocalDate monthStart,
-            @Param("monthEnd") LocalDate monthEnd,
-            Pageable pageable
+            @Param("monthEnd") LocalDate monthEnd
     );
 }
 
