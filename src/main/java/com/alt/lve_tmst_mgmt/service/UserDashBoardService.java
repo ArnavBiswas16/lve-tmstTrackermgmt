@@ -8,11 +8,9 @@ import java.time.LocalDate;
 
 public interface UserDashBoardService {
 
-    Page<UserDashBoardDto> fetchDashBoard(
+    UserDashBoardDto fetchDashBoard(
             String userId,
             LocalDate monthStart,
-            LocalDate monthEnd,
-            int page,
-            int size
+            LocalDate monthEnd
     );
 }

@@ -19,7 +19,7 @@ public class UserDashBoardController {
     UserDashBoardService userDashBoardService;
 
     @GetMapping("/public/userDashBoard")
-    public Page<UserDashBoardDto> userDashBoard (
+    public UserDashBoardDto userDashBoard (
             @RequestParam String userId,
             @RequestParam YearMonth month,
             @RequestParam(defaultValue = "0") int page,
@@ -28,7 +28,7 @@ public class UserDashBoardController {
         LocalDate start = month.atDay(1);
         LocalDate end = month.atEndOfMonth();
 
-        return userDashBoardService.fetchDashBoard(userId, start, end, page, size);
+        return userDashBoardService.fetchDashBoard(userId, start, end);
 
 
     }
