@@ -28,15 +28,11 @@ import lombok.extern.slf4j.Slf4j;
 public class TimesheetController {
      @Autowired
      TimesheetService timesheetService;
-     @Autowired
-    private  MonthlyTimesheetService service;
 
     @PostMapping("/save")
-    public ResponseEntity<TimesheetResponseDTO> saveTimesheet(
-            @RequestBody TimesheetRequestDTO request) {
-
-        TimesheetResponseDTO response = service.saveTimesheet(request);
-        return ResponseEntity.ok(response);
+    @ResponseStatus(HttpStatus.OK)
+    public SaveTimesheetResponse save(@Valid @RequestBody SaveTimesheetRequest request) {
+        return timesheetService.save(request);
     }
 
     @GetMapping()
