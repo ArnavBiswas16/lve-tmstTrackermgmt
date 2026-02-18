@@ -12,6 +12,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -22,47 +24,69 @@ public class MonthlyTimesheetService {
     private final EmployeeRepository employeeRepo;
 
     @Transactional
-    public void saveTimesheet(TimesheetRequestDTO request) {
+    public TimesheetResponseDTO saveTimesheet(TimesheetRequestDTO request) {
 
         Employee employee = employeeRepo.findById(request.getEmployeeId())
-                .orElseThrow(() -> new RuntimeException("Employee not found"));
+                .orElseThrow(() ->
+                        new RuntimeException("Employee not found with id: "
+                                + request.getEmployeeId()));
+
+        List<WeeklyEntryDTO> savedWeeklyEntries = new ArrayList<>();
 
         /*
          * ==========================
          * 1️⃣ SAVE WEEKLY TIMESHEET
          * ==========================
          */
-        request.getTimeSheet().forEach(week -> {
+        if (request.getTimeSheet() != null) {
 
-            WeeklyTimesheet weekly = weeklyRepo
-                    .findByEmployeeEmployeeIdAndWeekStartDate(
-                            request.getEmployeeId(),
-                            week.getWeekStartDate()
-                    )
-                    .orElse(WeeklyTimesheet.builder()
-                            .employee(employee)
-                            .weekStartDate(week.getWeekStartDate())
-                            .build());
+            for (WeeklyEntryDTO week : request.getTimeSheet()) {
 
-            weekly.setWeekEndDate(week.getWeekEndDate());
-            weekly.setTotalHours(week.getTotalHours());
-            weekly.setExpectedHours(BigDecimal.valueOf(40.00));
+                WeeklyTimesheet weekly = weeklyRepo
+                        .findByEmployeeEmployeeIdAndWeekStartDate(
+                                request.getEmployeeId(),
+                                week.getWeekStartDate()
+                        )
+                        .orElse(WeeklyTimesheet.builder()
+                                .employee(employee)
+                                .weekStartDate(week.getWeekStartDate())
+                                .build());
 
-            weeklyRepo.save(weekly);
-        });
+                weekly.setWeekEndDate(week.getWeekEndDate());
+                weekly.setTotalHours(week.getTotalHours());
+                weekly.setExpectedHours(BigDecimal.valueOf(40.00));
+
+                WeeklyTimesheet savedWeekly = weeklyRepo.save(weekly);
+
+                // 🔹 Map DB saved entity → DTO
+                savedWeeklyEntries.add(
+                        WeeklyEntryDTO.builder()
+                                .weekStartDate(savedWeekly.getWeekStartDate())
+                                .weekEndDate(savedWeekly.getWeekEndDate())
+                                .totalHours(savedWeekly.getTotalHours())
+                                .build()
+                );
+            }
+        }
 
         /*
          * ==========================
          * 2️⃣ SAVE MONTHLY COMPLIANCE
          * ==========================
          */
+        Boolean pts = null;
+        Boolean cofy = null;
+        Boolean citiTraining = null;
+        Boolean complianceSubmit = null;
 
-        if (request.getPts() != null ||
-                request.getCofy() != null ||
-                request.getCitiTraining() != null) {
+        if (request.getMonth() != null &&
+                (request.getPts() != null ||
+                        request.getCofy() != null ||
+                        request.getCitiTraining() != null ||
+                        request.getComplianceSubmit() != null)) {
 
             YearMonth yearMonth = YearMonth.parse(request.getMonth());
-            LocalDate monthDate = yearMonth.atDay(1);  // convert to LocalDate
+            LocalDate monthDate = yearMonth.atDay(1);
 
             ComplianceId id = new ComplianceId(
                     request.getEmployeeId(),
@@ -76,6 +100,7 @@ public class MonthlyTimesheetService {
                             .ptsSaved(false)
                             .cofyUpdate(false)
                             .citiTraining(false)
+                            .complianceSubmit(false)
                             .build());
 
             if (request.getPts() != null)
@@ -87,7 +112,30 @@ public class MonthlyTimesheetService {
             if (request.getCitiTraining() != null)
                 compliance.setCitiTraining(request.getCitiTraining());
 
-            complianceRepo.save(compliance);
+            if (request.getComplianceSubmit() != null)
+                compliance.setComplianceSubmit(request.getComplianceSubmit());
+
+            MonthlyCompliance savedCompliance = complianceRepo.save(compliance);
+
+            pts = savedCompliance.isPtsSaved();
+            cofy = savedCompliance.isCofyUpdate();
+            citiTraining = savedCompliance.isCitiTraining();
+            complianceSubmit = savedCompliance.getComplianceSubmit();
         }
+
+        /*
+         * ==========================
+         * 3️⃣ RETURN FINAL RESPONSE
+         * ==========================
+         */
+        return TimesheetResponseDTO.builder()
+                .employeeId(employee.getEmployeeId())
+                .employeeName(employee.getName())
+                .timeSheet(savedWeeklyEntries)
+                .pts(pts)
+                .cofy(cofy)
+                .citiTraining(citiTraining)
+                .complianceSubmit(complianceSubmit)
+                .build();
     }
 }

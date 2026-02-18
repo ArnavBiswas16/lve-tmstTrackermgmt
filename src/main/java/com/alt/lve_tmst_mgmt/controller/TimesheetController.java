@@ -3,6 +3,7 @@ package com.alt.lve_tmst_mgmt.controller;
 import com.alt.lve_tmst_mgmt.dto.SaveTimesheetRequest;
 import com.alt.lve_tmst_mgmt.dto.SaveTimesheetResponse;
 import com.alt.lve_tmst_mgmt.dto.TimesheetRequestDTO;
+import com.alt.lve_tmst_mgmt.dto.TimesheetResponseDTO;
 import com.alt.lve_tmst_mgmt.entity.Timesheet;
 import com.alt.lve_tmst_mgmt.service.MonthlyTimesheetService;
 import com.alt.lve_tmst_mgmt.service.TimesheetService;
@@ -31,13 +32,13 @@ public class TimesheetController {
     private  MonthlyTimesheetService service;
 
     @PostMapping("/save")
-    public ResponseEntity<TimesheetRequestDTO> saveTimesheet(
+    public ResponseEntity<TimesheetResponseDTO> saveTimesheet(
             @RequestBody TimesheetRequestDTO request) {
 
-        service.saveTimesheet(request);
-
-        return ResponseEntity.ok(request);
+        TimesheetResponseDTO response = service.saveTimesheet(request);
+        return ResponseEntity.ok(response);
     }
+
     @GetMapping()
     public List<Timesheet> getAllTimesheets() {
         log.info("GET timesheets - fetching all timesheets");

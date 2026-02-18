@@ -20,6 +20,7 @@ public class TimesheetRequestDTO {
     private Boolean pts;
     private Boolean cofy;
     private Boolean citiTraining;
+    private Boolean complianceSubmit;
 
     private List<WeeklyEntryDTO> timeSheet;
 }

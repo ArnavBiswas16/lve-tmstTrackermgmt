@@ -27,6 +27,10 @@ public class MonthlyCompliance {
     @Column(name = "citi_training", nullable = false)
     private boolean citiTraining;
 
+    @Column(name = "compliance_submit", nullable = false)
+    private Boolean complianceSubmit;
+
     @Column(name = "updated_at", insertable = false, updatable = false)
     private LocalDateTime updatedAt;
+
 }

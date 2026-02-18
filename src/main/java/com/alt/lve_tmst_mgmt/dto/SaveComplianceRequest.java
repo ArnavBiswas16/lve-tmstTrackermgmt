@@ -28,4 +28,8 @@ public class SaveComplianceRequest {
 
     @NotNull
     private Boolean citiTraining;
+
+    @NotNull
+    private Boolean complianceSubmit;
+
 }

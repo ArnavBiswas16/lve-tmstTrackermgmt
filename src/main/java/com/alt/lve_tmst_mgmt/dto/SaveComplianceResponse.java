@@ -1,4 +1,5 @@
 package com.alt.lve_tmst_mgmt.dto;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 @Data
@@ -13,4 +14,5 @@ public class SaveComplianceResponse {
     private boolean pts;
     private boolean cofy;
     private boolean citiTraining;
+    private boolean complianceSubmit;
 }
