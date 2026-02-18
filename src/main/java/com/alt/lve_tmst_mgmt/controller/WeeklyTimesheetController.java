@@ -1,8 +1,12 @@
 package com.alt.lve_tmst_mgmt.controller;
 
+import com.alt.lve_tmst_mgmt.dto.TimesheetRequestDTO;
+import com.alt.lve_tmst_mgmt.dto.TimesheetResponseDTO;
 import com.alt.lve_tmst_mgmt.entity.WeeklyTimesheet;
+import com.alt.lve_tmst_mgmt.service.MonthlyTimesheetService;
 import com.alt.lve_tmst_mgmt.service.WeeklyTimesheetService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -12,12 +16,20 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/weekly-timesheets")
+@RequestMapping("/public/weekly-timesheets")
 public class WeeklyTimesheetController {
 
     @Autowired
     WeeklyTimesheetService service;
+    @Autowired
+    private MonthlyTimesheetService timesheetService;
+    @PostMapping("/save")
+    public ResponseEntity<TimesheetResponseDTO> saveTimesheet(
+            @RequestBody TimesheetRequestDTO request) {
 
+        TimesheetResponseDTO response = timesheetService.saveTimesheet(request);
+        return ResponseEntity.ok(response);
+    }
     @GetMapping
     public List<WeeklyTimesheet> getAllWeeklyTimesheets() {
         log.info("GET /weekly-timesheets - fetching all weekly timesheets");
