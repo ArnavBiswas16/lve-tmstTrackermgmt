@@ -32,4 +32,6 @@ public interface TimesheetRepo extends JpaRepository<Timesheet, Integer> {
             @Param("endDate") LocalDate endDate
     );
 
+    void deleteByEmployeeAndWorkDateIn(Employee employee, Collection<LocalDate> dates);
+
 }
