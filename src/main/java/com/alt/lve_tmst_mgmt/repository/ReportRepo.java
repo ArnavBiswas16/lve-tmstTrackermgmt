@@ -133,7 +133,12 @@ public interface ReportRepo extends JpaRepository<Employee, String>{
                                     AND e.is_active = 1
                                     ORDER BY name;
 
-       """, nativeQuery = true)
+       """, countQuery = """
+      SELECT COUNT(*)
+      FROM employee e
+      WHERE e.sow_id = ?
+        AND e.is_active = 1
+  """, nativeQuery = true)
     Page<MonthlyEmployeeReportDto> fetchReport(
             @Param("sowId") String sowId,
             @Param("monthStart") LocalDate monthStart,
