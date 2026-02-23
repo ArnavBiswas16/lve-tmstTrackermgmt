@@ -5,6 +5,7 @@ import com.alt.lve_tmst_mgmt.entity.WeeklyTimesheet;
 import com.alt.lve_tmst_mgmt.repository.WeeklyTimesheetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -23,5 +24,11 @@ public class WeeklyTimesheetServiceImpl implements WeeklyTimesheetService {
     @Override
     public WeeklyTimesheet create(WeeklyTimesheet weeklyTimesheet) {
         return weeklyTimesheetRepo.save(weeklyTimesheet);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<WeeklyTimesheet> getByEmployeeId(String employeeId) {
+        return weeklyTimesheetRepo.findByEmployeeEmployeeId(employeeId);
     }
 }

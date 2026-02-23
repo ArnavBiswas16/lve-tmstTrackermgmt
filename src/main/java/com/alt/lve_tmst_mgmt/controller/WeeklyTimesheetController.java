@@ -1,7 +1,8 @@
 package com.alt.lve_tmst_mgmt.controller;
 
-import com.alt.lve_tmst_mgmt.dto.TimesheetRequestDTO;
-import com.alt.lve_tmst_mgmt.dto.TimesheetResponseDTO;
+import com.alt.lve_tmst_mgmt.dto.WeeklyEntryDTO;
+import com.alt.lve_tmst_mgmt.dto.WeeklyTimesheetRequestDTO;
+import com.alt.lve_tmst_mgmt.dto.WeeklyTimesheetResponseDTO;
 import com.alt.lve_tmst_mgmt.entity.WeeklyTimesheet;
 import com.alt.lve_tmst_mgmt.service.MonthlyTimesheetService;
 import com.alt.lve_tmst_mgmt.service.WeeklyTimesheetService;
@@ -24,10 +25,10 @@ public class WeeklyTimesheetController {
     @Autowired
     private MonthlyTimesheetService timesheetService;
     @PostMapping("/save")
-    public ResponseEntity<TimesheetResponseDTO> saveTimesheet(
-            @RequestBody TimesheetRequestDTO request) {
+    public ResponseEntity<WeeklyTimesheetResponseDTO> saveTimesheet(
+            @RequestBody WeeklyTimesheetRequestDTO request) {
 
-        TimesheetResponseDTO response = timesheetService.saveTimesheet(request);
+        WeeklyTimesheetResponseDTO response = timesheetService.saveTimesheet(request);
         return ResponseEntity.ok(response);
     }
     @GetMapping
@@ -52,5 +53,41 @@ public class WeeklyTimesheetController {
         log.info("POST /weekly-timesheets - weekly timesheet created successfully");
 
         return created;
+    }
+    @GetMapping("/employee/{employeeId}")
+    public ResponseEntity<WeeklyTimesheetResponseDTO>
+    getWeeklyTimesheetsByEmployeeId(
+            @PathVariable String employeeId) {
+
+        log.info("Fetching weekly timesheets for employeeId={}", employeeId);
+
+        List<WeeklyTimesheet> timesheets =
+                service.getByEmployeeId(employeeId);
+
+        if (timesheets == null || timesheets.isEmpty()) {
+            log.warn("No weekly timesheets found for employeeId={}", employeeId);
+            return ResponseEntity.notFound().build();
+        }
+
+        // Extract employee details from first record
+        WeeklyTimesheet first = timesheets.get(0);
+
+        List<WeeklyEntryDTO> weeklyEntries =
+                timesheets.stream()
+                        .map(ts -> WeeklyEntryDTO.builder()
+                                .weekStartDate(ts.getWeekStartDate())
+                                .weekEndDate(ts.getWeekEndDate())
+                                .totalHours(ts.getTotalHours())
+                                .build())
+                        .toList();
+
+        WeeklyTimesheetResponseDTO response =
+                WeeklyTimesheetResponseDTO.builder()
+                        .employeeId(first.getEmployee().getEmployeeId())
+                        .employeeName(first.getEmployee().getName())
+                        .timeSheet(weeklyEntries)
+                        .build();
+
+        return ResponseEntity.ok(response);
     }
 }

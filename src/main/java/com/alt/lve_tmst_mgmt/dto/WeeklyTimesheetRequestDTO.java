@@ -9,7 +9,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class TimesheetRequestDTO {
+public class WeeklyTimesheetRequestDTO {
 
     private String employeeId;
 

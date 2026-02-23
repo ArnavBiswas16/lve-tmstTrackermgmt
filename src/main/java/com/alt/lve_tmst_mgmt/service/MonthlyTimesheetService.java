@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +23,7 @@ public class MonthlyTimesheetService {
     private final EmployeeRepository employeeRepo;
 
     @Transactional
-    public TimesheetResponseDTO saveTimesheet(TimesheetRequestDTO request) {
+    public WeeklyTimesheetResponseDTO saveTimesheet(WeeklyTimesheetRequestDTO request) {
 
         Employee employee = employeeRepo.findById(request.getEmployeeId())
                 .orElseThrow(() ->
@@ -33,11 +32,6 @@ public class MonthlyTimesheetService {
 
         List<WeeklyEntryDTO> savedWeeklyEntries = new ArrayList<>();
 
-        /*
-         * ==========================
-         * 1️⃣ SAVE WEEKLY TIMESHEET
-         * ==========================
-         */
         if (request.getTimeSheet() != null) {
 
             for (WeeklyEntryDTO week : request.getTimeSheet()) {
@@ -69,11 +63,7 @@ public class MonthlyTimesheetService {
             }
         }
 
-        /*
-         * ==========================
-         * 2️⃣ SAVE MONTHLY COMPLIANCE
-         * ==========================
-         */
+
         Boolean pts = null;
         Boolean cofy = null;
         Boolean citiTraining = null;
@@ -128,7 +118,7 @@ public class MonthlyTimesheetService {
          * 3️⃣ RETURN FINAL RESPONSE
          * ==========================
          */
-        return TimesheetResponseDTO.builder()
+        return WeeklyTimesheetResponseDTO.builder()
                 .employeeId(employee.getEmployeeId())
                 .employeeName(employee.getName())
                 .timeSheet(savedWeeklyEntries)

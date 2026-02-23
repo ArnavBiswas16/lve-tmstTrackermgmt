@@ -4,6 +4,7 @@ import com.alt.lve_tmst_mgmt.entity.WeeklyTimesheet;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 public interface WeeklyTimesheetRepository
@@ -11,4 +12,5 @@ public interface WeeklyTimesheetRepository
 
     Optional<WeeklyTimesheet> findByEmployeeEmployeeIdAndWeekStartDate(
             String employeeId, LocalDate weekStartDate);
+    List<WeeklyTimesheet> findByEmployeeEmployeeId(String employeeId);
 }

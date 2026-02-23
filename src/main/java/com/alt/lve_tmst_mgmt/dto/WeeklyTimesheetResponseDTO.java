@@ -7,7 +7,7 @@ import java.util.List;
 
 @Data
 @Builder
-public class TimesheetResponseDTO {
+public class WeeklyTimesheetResponseDTO {
 
     private String employeeId;
     private String employeeName;
