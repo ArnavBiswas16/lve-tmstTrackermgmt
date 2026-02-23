@@ -13,4 +13,6 @@ public interface WeeklyTimesheetRepository
     Optional<WeeklyTimesheet> findByEmployeeEmployeeIdAndWeekStartDate(
             String employeeId, LocalDate weekStartDate);
     List<WeeklyTimesheet> findByEmployeeEmployeeId(String employeeId);
+    List<WeeklyTimesheet> findByEmployeeEmployeeIdAndWeekStartDateBetween(
+            String employeeId, LocalDate start, LocalDate end);
 }

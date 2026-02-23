@@ -55,21 +55,22 @@ public class WeeklyTimesheetController {
         return created;
     }
     @GetMapping("/employee/{employeeId}")
-    public ResponseEntity<WeeklyTimesheetResponseDTO>
-    getWeeklyTimesheetsByEmployeeId(
-            @PathVariable String employeeId) {
+    public ResponseEntity<WeeklyTimesheetResponseDTO> getWeeklyTimesheetsByEmployeeAndMonth(
+            @PathVariable String employeeId,
+            @RequestParam(required = false) String month) {
 
-        log.info("Fetching weekly timesheets for employeeId={}", employeeId);
+        List<WeeklyTimesheet> timesheets;
 
-        List<WeeklyTimesheet> timesheets =
-                service.getByEmployeeId(employeeId);
+        if (month != null && !month.isEmpty()) {
+            timesheets = service.getByEmployeeIdAndMonth(employeeId, month);
+        } else {
+            timesheets = service.getByEmployeeId(employeeId);
+        }
 
         if (timesheets == null || timesheets.isEmpty()) {
-            log.warn("No weekly timesheets found for employeeId={}", employeeId);
             return ResponseEntity.notFound().build();
         }
 
-        // Extract employee details from first record
         WeeklyTimesheet first = timesheets.get(0);
 
         List<WeeklyEntryDTO> weeklyEntries =
