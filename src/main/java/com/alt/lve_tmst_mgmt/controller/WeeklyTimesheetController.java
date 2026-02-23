@@ -46,10 +46,10 @@ public class WeeklyTimesheetController {
 
         return created;
     }
-    @GetMapping()
-    public ResponseEntity<WeeklyTimesheetResponseDTO> getWeeklyTimesheetsByEmployeeAndMonth(
+    @GetMapping
+    public ResponseEntity<WeeklyTimesheetResponseDTO> getWeeklyTimesheets(
             @RequestParam("userId") String userId,
-            @RequestParam(required = false) String month) {
+            @RequestParam(value = "month", required = false) String month) {
 
         List<WeeklyTimesheet> timesheets;
 
@@ -59,28 +59,33 @@ public class WeeklyTimesheetController {
             timesheets = service.getByEmployeeId(userId);
         }
 
+        // ✅ Return empty response instead of 404
         if (timesheets == null || timesheets.isEmpty()) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.ok(
+                    WeeklyTimesheetResponseDTO.builder()
+                            .employeeId(userId)
+                            .employeeName(null)
+                            .timeSheet(List.of())
+                            .build()
+            );
         }
 
         WeeklyTimesheet first = timesheets.get(0);
 
-        List<WeeklyEntryDTO> weeklyEntries =
-                timesheets.stream()
-                        .map(ts -> WeeklyEntryDTO.builder()
-                                .weekStartDate(ts.getWeekStartDate())
-                                .weekEndDate(ts.getWeekEndDate())
-                                .totalHours(ts.getTotalHours())
-                                .build())
-                        .toList();
+        List<WeeklyEntryDTO> weeklyEntries = timesheets.stream()
+                .map(ts -> WeeklyEntryDTO.builder()
+                        .weekStartDate(ts.getWeekStartDate())
+                        .weekEndDate(ts.getWeekEndDate())
+                        .totalHours(ts.getTotalHours())
+                        .build())
+                .toList();
 
-        WeeklyTimesheetResponseDTO response =
+        return ResponseEntity.ok(
                 WeeklyTimesheetResponseDTO.builder()
                         .employeeId(first.getEmployee().getEmployeeId())
                         .employeeName(first.getEmployee().getName())
                         .timeSheet(weeklyEntries)
-                        .build();
-
-        return ResponseEntity.ok(response);
+                        .build()
+        );
     }
 }
