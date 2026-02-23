@@ -31,15 +31,7 @@ public class WeeklyTimesheetController {
         WeeklyTimesheetResponseDTO response = timesheetService.saveTimesheet(request);
         return ResponseEntity.ok(response);
     }
-    @GetMapping
-    public List<WeeklyTimesheet> getAllWeeklyTimesheets() {
-        log.info("GET /weekly-timesheets - fetching all weekly timesheets");
-        List<WeeklyTimesheet> list = service.getAll();
-        log.info("GET /weekly-timesheets - fetched {} weekly timesheets",
-                (list != null ? list.size() : 0));
 
-        return list;
-    }
 
     @PostMapping
     public WeeklyTimesheet createWeeklyTimesheet(@RequestBody WeeklyTimesheet weeklyTimesheet) {
@@ -54,17 +46,17 @@ public class WeeklyTimesheetController {
 
         return created;
     }
-    @GetMapping("/employee/{employeeId}")
+    @GetMapping()
     public ResponseEntity<WeeklyTimesheetResponseDTO> getWeeklyTimesheetsByEmployeeAndMonth(
-            @PathVariable String employeeId,
+            @RequestParam("userId") String userId,
             @RequestParam(required = false) String month) {
 
         List<WeeklyTimesheet> timesheets;
 
         if (month != null && !month.isEmpty()) {
-            timesheets = service.getByEmployeeIdAndMonth(employeeId, month);
+            timesheets = service.getByEmployeeIdAndMonth(userId, month);
         } else {
-            timesheets = service.getByEmployeeId(employeeId);
+            timesheets = service.getByEmployeeId(userId);
         }
 
         if (timesheets == null || timesheets.isEmpty()) {
