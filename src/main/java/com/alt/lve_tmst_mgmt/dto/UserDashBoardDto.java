@@ -1,5 +1,14 @@
 package com.alt.lve_tmst_mgmt.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Setter
+@NoArgsConstructor
+
+
 public class UserDashBoardDto {
 
     private String employeeId;

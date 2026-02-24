@@ -2,9 +2,10 @@ package com.alt.lve_tmst_mgmt.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 
 import java.time.LocalDate;
-
+@AllArgsConstructor
 public class LeaveDayDTO {
 
     @NotNull

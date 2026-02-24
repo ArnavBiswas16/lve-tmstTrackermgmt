@@ -10,8 +10,10 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 
-import java.time.YearMonth;
+import java.math.BigDecimal;
+import java.sql.Date;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -30,8 +32,29 @@ class ReportsControllerTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        sampleReport = new MonthlyEmployeeReportDto();
-        // Set fields if needed, e.g., sampleReport.setEmployeeName("John Doe");
+
+        // Initialize a fully populated DTO
+        sampleReport = new MonthlyEmployeeReportDto(
+                "EMP001",                      // employeeId
+                "John Doe",                     // name
+                "john.doe@test.com",            // email
+                "ROLE_USER",                    // role
+                "SOE123",                       // soeId
+                "New York",                     // location
+                "SOW123",                       // sowId
+                Date.valueOf(LocalDate.of(2026, 2, 1)), // assignmentStartDate
+                "[{\"day\":1,\"hours\":8}]",    // timesheets
+                "[{\"day\":2,\"hours\":8}]",    // leaves
+                "[{\"day\":3,\"hours\":8}]",    // holidays
+                BigDecimal.valueOf(160),        // totalHours
+                2L,                             // numberOfLeaves
+                1L,                             // numberOfHalfDays
+                1L,                             // numberOfHolidays
+                "[{\"week\":1,\"hours\":40}]",  // weeklyHours
+                true,                           // ptsSaved
+                false,                          // cofyUpdate
+                true                            // citiTraining
+        );
     }
 
     @Test
@@ -52,7 +75,17 @@ class ReportsControllerTest {
 
         assertNotNull(result);
         assertEquals(1, result.getTotalElements());
-        assertEquals(sampleReport, result.getContent().get(0));
+
+        MonthlyEmployeeReportDto dto = result.getContent().get(0);
+        assertEquals("EMP001", dto.getEmployeeId());
+        assertEquals("John Doe", dto.getName());
+        assertEquals("john.doe@test.com", dto.getEmail());
+        assertEquals("ROLE_USER", dto.getRole());
+        assertEquals("SOW123", dto.getSowId());
+        assertEquals(BigDecimal.valueOf(160), dto.getTotalHours());
+        assertTrue(dto.getPtsSaved());
+        assertFalse(dto.getCofyUpdate());
+        assertTrue(dto.getCitiTraining());
 
         verify(reportService, times(1)).fetchReport(sowId, start, end, page, size);
     }
