@@ -94,6 +94,7 @@ public class TimesheetServiceImpl implements TimesheetService {
                         throw new BusinessValidationException("Timesheet date cannot be null.");
                     }
                     if (t.getHours() == null || t.getHours().compareTo(BigDecimal.ZERO) < 0) {
+                        // still allow zero here; negative is invalid
                         throw new BusinessValidationException("Timesheet hours must be non-negative.");
                     }
                 }
@@ -141,56 +142,86 @@ public class TimesheetServiceImpl implements TimesheetService {
                     .map(LeaveDayDTO::getDate)
                     .collect(Collectors.toCollection(LinkedHashSet::new));
 
-            // Collect timesheet dates
-            Set<LocalDate> tsDates = tsItems.stream()
-                    .map(TimesheetDayDTO::getDate)
-                    .collect(Collectors.toCollection(LinkedHashSet::new));
+            // Collect timesheet dates – but split into two sets:
+            //   - tsUpsertDates: hours > 0 (we upsert these)
+            //   - tsZeroHourDates: hours == 0 (we delete these)
+            Set<LocalDate> tsUpsertDates = new LinkedHashSet<>();
+            Set<LocalDate> tsZeroHourDates = new LinkedHashSet<>();
+            for (TimesheetDayDTO dto : tsItems) {
+                if (dto.getHours() != null && dto.getHours().compareTo(BigDecimal.ZERO) == 0) {
+                    tsZeroHourDates.add(dto.getDate());
+                } else {
+                    tsUpsertDates.add(dto.getDate());
+                }
+            }
 
             // Affected dates in this request (used for targeted replacement)
             Set<LocalDate> affectedDates = new LinkedHashSet<>();
-            affectedDates.addAll(tsDates);
+            affectedDates.addAll(tsUpsertDates);
             affectedDates.addAll(lfDates);
+            // Note: we purposely DO NOT add tsZeroHourDates to affectedDates for leave replacement;
+            // zero-hour means "delete timesheet", not "timesheet wins".
 
             LocalDateTime now = LocalDateTime.now();
 
             // ---- TIMESHEET UPSERT ----
             if (!timeSheetByDate.isEmpty()) {
-                List<LocalDate> reqDates = new ArrayList<>(timeSheetByDate.keySet());
 
-                Map<LocalDate, Timesheet> existingByDate = timesheetRepo
-                        .findByEmployeeAndWorkDateIn(employeeRef, reqDates)
-                        .stream()
-                        .collect(Collectors.toMap(Timesheet::getWorkDate, t -> t));
+                // First handle DELETEs for zero-hour timesheet dates
+                if (!tsZeroHourDates.isEmpty()) {
+                    log.debug("Removing timesheet entries for zero-hour dates count={}", tsZeroHourDates.size());
+                    // requires TimesheetRepo.deleteByEmployeeAndWorkDateIn(...)
+                    timesheetRepo.deleteByEmployeeAndWorkDateIn(employeeRef, tsZeroHourDates);
+                }
 
-                for (Map.Entry<LocalDate, TimesheetDayDTO> e : timeSheetByDate.entrySet()) {
-                    LocalDate date = e.getKey();
-                    TimesheetDayDTO dto = e.getValue();
-                    Timesheet existing = existingByDate.get(date);
-
-                    if (existing == null) {
-                        log.debug("Inserting new timesheet for date={}", date);
-
-                        Timesheet newTs = Timesheet.builder()
-                                .employee(employeeRef)
-                                .workDate(date)
-                                .hoursLogged(dto.getHours())
-                                .build();
-
-                        timesheetRepo.save(newTs);
-
-                    } else {
-                        log.debug("Updating existing timesheet for date={}", date);
-
-                        existing.setHoursLogged(dto.getHours());
-                        existing.setUpdatedAt(now);
-                        timesheetRepo.save(existing);
+                // Now upsert only the > 0 hour entries
+                Map<LocalDate, TimesheetDayDTO> upsertMap = new LinkedHashMap<>();
+                for (Map.Entry<LocalDate, TimesheetDayDTO> entry : timeSheetByDate.entrySet()) {
+                    LocalDate d = entry.getKey();
+                    TimesheetDayDTO v = entry.getValue();
+                    if (v.getHours() != null && v.getHours().compareTo(BigDecimal.ZERO) > 0) {
+                        upsertMap.put(d, v);
                     }
                 }
 
-                // **Conflict rule:** when a timesheet exists for a date, remove any leave on that date
-                if (!tsDates.isEmpty()) {
-                    log.debug("Removing leave forecast for dates with timesheet (conflict resolution), count={}", tsDates.size());
-                    leaveForecastRepository.deleteByEmployeeAndStartDateIn(employeeRef, tsDates);
+                if (!upsertMap.isEmpty()) {
+                    List<LocalDate> reqDates = new ArrayList<>(upsertMap.keySet());
+
+                    Map<LocalDate, Timesheet> existingByDate = timesheetRepo
+                            .findByEmployeeAndWorkDateIn(employeeRef, reqDates)
+                            .stream()
+                            .collect(Collectors.toMap(Timesheet::getWorkDate, t -> t));
+
+                    for (Map.Entry<LocalDate, TimesheetDayDTO> e : upsertMap.entrySet()) {
+                        LocalDate date = e.getKey();
+                        TimesheetDayDTO dto = e.getValue();
+                        Timesheet existing = existingByDate.get(date);
+
+                        if (existing == null) {
+                            log.debug("Inserting new timesheet for date={}", date);
+
+                            Timesheet newTs = Timesheet.builder()
+                                    .employee(employeeRef)
+                                    .workDate(date)
+                                    .hoursLogged(dto.getHours())
+                                    .build();
+
+                            timesheetRepo.save(newTs);
+
+                        } else {
+                            log.debug("Updating existing timesheet for date={}", date);
+
+                            existing.setHoursLogged(dto.getHours());
+                            existing.setUpdatedAt(now);
+                            timesheetRepo.save(existing);
+                        }
+                    }
+
+                    // **Conflict rule:** when a timesheet exists for a date, remove any leave on that date
+                    if (!tsUpsertDates.isEmpty()) {
+                        log.debug("Removing leave forecast for dates with timesheet (conflict resolution), count={}", tsUpsertDates.size());
+                        leaveForecastRepository.deleteByEmployeeAndStartDateIn(employeeRef, tsUpsertDates);
+                    }
                 }
             }
 
@@ -198,13 +229,12 @@ public class TimesheetServiceImpl implements TimesheetService {
             // If lfDates is empty, we do nothing (we don't delete existing leaves implicitly)
             // Enhanced behavior: when leave is in the request, ensure no timesheet remains on those dates unless a timesheet for that date is also provided.
             if (req.getLeaveForecast() != null) {
-                // Remove any existing timesheet entries for leave-only dates (dates that are in leave payload but not in timesheet payload)
+                // Remove any existing timesheet entries for leave-only dates (dates that are in leave payload but not in timesheet payload with hours > 0)
                 Set<LocalDate> leaveOnlyDates = lfDates.stream()
-                        .filter(d -> !tsDates.contains(d))
+                        .filter(d -> !tsUpsertDates.contains(d))
                         .collect(Collectors.toCollection(LinkedHashSet::new));
                 if (!leaveOnlyDates.isEmpty()) {
                     log.debug("Removing timesheet entries for leave-only dates count={}", leaveOnlyDates.size());
-                    // requires TimesheetRepo.deleteByEmployeeAndWorkDateIn(...)
                     timesheetRepo.deleteByEmployeeAndWorkDateIn(employeeRef, leaveOnlyDates);
                 }
 
@@ -215,9 +245,9 @@ public class TimesheetServiceImpl implements TimesheetService {
                     leaveForecastRepository.deleteByEmployeeAndStartDateIn(employeeRef, affectedDates);
                 }
 
-                // Insert new leaves only for dates that are not present in timesheet payload (timesheet wins on same-day collisions)
+                // Insert new leaves only for dates that are NOT present in timesheet payload with hours > 0 (timesheet wins on same-day collisions)
                 Set<LocalDate> lfToInsert = lfDates.stream()
-                        .filter(d -> !tsDates.contains(d))
+                        .filter(d -> !tsUpsertDates.contains(d))
                         .collect(Collectors.toCollection(LinkedHashSet::new));
 
                 if (!lfToInsert.isEmpty()) {
