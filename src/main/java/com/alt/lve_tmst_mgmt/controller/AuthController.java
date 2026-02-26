@@ -1,5 +1,4 @@
 package com.alt.lve_tmst_mgmt.controller;
-
 import com.alt.lve_tmst_mgmt.dto.LoginRequestDto;
 import com.alt.lve_tmst_mgmt.dto.LoginResponseDto;
 import com.alt.lve_tmst_mgmt.security.CustomUserDetails;
@@ -52,9 +51,8 @@ public class AuthController {
             return ResponseEntity.ok(response);
 
         } catch (BadCredentialsException ex) {
-
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("message", "Invalid username or password"));
+                    .body(Map.of("message", "Invalid Username or Password"));
         }
     }
 }

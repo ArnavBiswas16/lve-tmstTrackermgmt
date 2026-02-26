@@ -1,6 +1,5 @@
 package com.alt.lve_tmst_mgmt.controller;
 
-import com.alt.lve_tmst_mgmt.dto.WeeklyEntryDTO;
 import com.alt.lve_tmst_mgmt.dto.WeeklyTimesheetRequestDTO;
 import com.alt.lve_tmst_mgmt.dto.WeeklyTimesheetResponseDTO;
 import com.alt.lve_tmst_mgmt.entity.WeeklyTimesheet;
@@ -10,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 // Added for logging
 import lombok.extern.slf4j.Slf4j;
@@ -46,41 +44,14 @@ public class WeeklyTimesheetController {
 
         return created;
     }
-    @GetMapping()
-    public ResponseEntity<WeeklyTimesheetResponseDTO> getWeeklyTimesheetsByEmployeeAndMonth(
+    @GetMapping
+    public ResponseEntity<WeeklyTimesheetResponseDTO> getMonthlyData(
             @RequestParam("userId") String userId,
-            @RequestParam(required = false) String month) {
-
-        List<WeeklyTimesheet> timesheets;
-
-        if (month != null && !month.isEmpty()) {
-            timesheets = service.getByEmployeeIdAndMonth(userId, month);
-        } else {
-            timesheets = service.getByEmployeeId(userId);
-        }
-
-        if (timesheets == null || timesheets.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-
-        WeeklyTimesheet first = timesheets.get(0);
-
-        List<WeeklyEntryDTO> weeklyEntries =
-                timesheets.stream()
-                        .map(ts -> WeeklyEntryDTO.builder()
-                                .weekStartDate(ts.getWeekStartDate())
-                                .weekEndDate(ts.getWeekEndDate())
-                                .totalHours(ts.getTotalHours())
-                                .build())
-                        .toList();
+            @RequestParam("month") String month) {
 
         WeeklyTimesheetResponseDTO response =
-                WeeklyTimesheetResponseDTO.builder()
-                        .employeeId(first.getEmployee().getEmployeeId())
-                        .employeeName(first.getEmployee().getName())
-                        .timeSheet(weeklyEntries)
-                        .build();
-
+                timesheetService.getMonthlyData(userId, month);
+       log.info("WeeklyTimesheetResponse");
         return ResponseEntity.ok(response);
     }
 }
