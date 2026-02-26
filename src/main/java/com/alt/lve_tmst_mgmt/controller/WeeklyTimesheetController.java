@@ -51,7 +51,7 @@ public class WeeklyTimesheetController {
 
         WeeklyTimesheetResponseDTO response =
                 timesheetService.getMonthlyData(userId, month);
-
+       log.info("WeeklyTimesheetResponse");
         return ResponseEntity.ok(response);
     }
 }

@@ -59,8 +59,6 @@ public class MonthlyTimesheetService {
                 );
             }
         }
-
-
         Boolean pts = null;
         Boolean cofy = null;
         Boolean citiTraining = null;
