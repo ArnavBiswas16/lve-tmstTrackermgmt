@@ -6,6 +6,4 @@ import java.util.List;
 public interface WeeklyTimesheetService {
     List<WeeklyTimesheet> getAll();
     WeeklyTimesheet create(WeeklyTimesheet weeklyTimesheet);
-    List<WeeklyTimesheet> getByEmployeeId(String employeeId);
-    List<WeeklyTimesheet> getByEmployeeIdAndMonth(String employeeId, String month);
 }
