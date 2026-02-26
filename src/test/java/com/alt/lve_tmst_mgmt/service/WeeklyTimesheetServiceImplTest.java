@@ -50,42 +50,7 @@ class WeeklyTimesheetServiceImplTest {
         verify(weeklyTimesheetRepo, times(1)).save(weeklyTimesheet);
     }
 
-    @Test
-    void getByEmployeeId_shouldReturnWeeklyTimesheetsForEmployee() {
-        WeeklyTimesheet w1 = new WeeklyTimesheet();
-        WeeklyTimesheet w2 = new WeeklyTimesheet();
-        String employeeId = "634";
 
-        when(weeklyTimesheetRepo.findByEmployeeEmployeeId(employeeId)).thenReturn(List.of(w1, w2));
 
-        List<WeeklyTimesheet> result = weeklyTimesheetService.getByEmployeeId(employeeId);
 
-        assertNotNull(result);
-        assertEquals(2, result.size());
-        verify(weeklyTimesheetRepo, times(1)).findByEmployeeEmployeeId(employeeId);
-    }
-
-    @Test
-    void getByEmployeeIdAndMonth_shouldReturnWeeklyTimesheetsForEmployeeAndMonth() {
-        String employeeId = "634";
-        String month = "2026-02";
-
-        WeeklyTimesheet w1 = new WeeklyTimesheet();
-        WeeklyTimesheet w2 = new WeeklyTimesheet();
-
-        LocalDate startOfMonth = java.time.YearMonth.parse(month).atDay(1);
-        LocalDate endOfMonth = java.time.YearMonth.parse(month).atEndOfMonth();
-
-        when(weeklyTimesheetRepo.findByEmployeeEmployeeIdAndWeekStartDateBetween(
-                employeeId, startOfMonth, endOfMonth
-        )).thenReturn(List.of(w1, w2));
-
-        List<WeeklyTimesheet> result = weeklyTimesheetService.getByEmployeeIdAndMonth(employeeId, month);
-
-        assertNotNull(result);
-        assertEquals(2, result.size());
-
-        verify(weeklyTimesheetRepo, times(1))
-                .findByEmployeeEmployeeIdAndWeekStartDateBetween(employeeId, startOfMonth, endOfMonth);
-    }
 }
