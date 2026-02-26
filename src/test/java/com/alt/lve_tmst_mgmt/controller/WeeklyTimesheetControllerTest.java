@@ -29,7 +29,19 @@ class WeeklyTimesheetControllerTest {
         sampleWeeklyTimesheet = new WeeklyTimesheet();
     }
 
+    @Test
+    void getAllWeeklyTimesheets_shouldReturnList() {
+        List<WeeklyTimesheet> timesheets = List.of(sampleWeeklyTimesheet);
+        when(service.getAll()).thenReturn(timesheets);
 
+        List<WeeklyTimesheet> result = controller.getAllWeeklyTimesheets();
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(sampleWeeklyTimesheet, result.get(0));
+
+        verify(service, times(1)).getAll();
+    }
 
     @Test
     void createWeeklyTimesheet_shouldReturnCreatedTimesheet() {

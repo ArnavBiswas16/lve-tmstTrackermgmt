@@ -1,6 +1,4 @@
 package com.alt.lve_tmst_mgmt.service;
-
-
 import com.alt.lve_tmst_mgmt.dto.*;
 import com.alt.lve_tmst_mgmt.entity.*;
 import com.alt.lve_tmst_mgmt.repository.*;
@@ -52,7 +50,6 @@ public class MonthlyTimesheetService {
 
                 WeeklyTimesheet savedWeekly = weeklyRepo.save(weekly);
 
-                // 🔹 Map DB saved entity → DTO
                 savedWeeklyEntries.add(
                         WeeklyEntryDTO.builder()
                                 .weekStartDate(savedWeekly.getWeekStartDate())
@@ -113,11 +110,6 @@ public class MonthlyTimesheetService {
             complianceSubmit = savedCompliance.getComplianceSubmit();
         }
 
-        /*
-         * ==========================
-         * 3️⃣ RETURN FINAL RESPONSE
-         * ==========================
-         */
         return WeeklyTimesheetResponseDTO.builder()
                 .employeeId(employee.getEmployeeId())
                 .employeeName(employee.getName())
@@ -128,4 +120,57 @@ public class MonthlyTimesheetService {
                 .complianceSubmit(complianceSubmit)
                 .build();
     }
+    @Transactional(readOnly = true)
+    public WeeklyTimesheetResponseDTO getMonthlyData(String employeeId, String month) {
+
+        Employee employee = employeeRepo.findById(employeeId)
+                .orElseThrow(() ->
+                        new RuntimeException("Employee not found with id: " + employeeId));
+
+        YearMonth ym = YearMonth.parse(month);
+        LocalDate startOfMonth = ym.atDay(1);
+        LocalDate endOfMonth = ym.atEndOfMonth();
+        LocalDate monthDate = ym.atDay(1);
+
+        List<WeeklyTimesheet> weeklyList =
+                weeklyRepo.findByEmployeeEmployeeIdAndWeekStartDateBetween(
+                        employeeId, startOfMonth, endOfMonth);
+
+        List<WeeklyEntryDTO> weeklyDTO = weeklyList.stream()
+                .map(w -> WeeklyEntryDTO.builder()
+                        .weekStartDate(w.getWeekStartDate())
+                        .weekEndDate(w.getWeekEndDate())
+                        .totalHours(w.getTotalHours())
+                        .build())
+                .toList();
+
+
+        ComplianceId id = new ComplianceId(employeeId, monthDate);
+
+        MonthlyCompliance compliance =
+                complianceRepo.findById(id).orElse(null);
+
+        Boolean pts = null;
+        Boolean cofy = null;
+        Boolean citiTraining = null;
+        Boolean complianceSubmit = null;
+
+        if (compliance != null) {
+            pts = compliance.isPtsSaved();
+            cofy = compliance.isCofyUpdate();
+            citiTraining = compliance.isCitiTraining();
+            complianceSubmit = compliance.getComplianceSubmit();
+        }
+
+        return WeeklyTimesheetResponseDTO.builder()
+                .employeeId(employee.getEmployeeId())
+                .employeeName(employee.getName())
+                .timeSheet(weeklyDTO)
+                .pts(pts)
+                .cofy(cofy)
+                .citiTraining(citiTraining)
+                .complianceSubmit(complianceSubmit)
+                .build();
+    }
+
 }

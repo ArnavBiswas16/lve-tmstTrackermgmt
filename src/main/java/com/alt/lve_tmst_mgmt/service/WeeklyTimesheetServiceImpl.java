@@ -16,7 +16,6 @@ public class WeeklyTimesheetServiceImpl implements WeeklyTimesheetService {
     WeeklyTimesheetRepository weeklyTimesheetRepo;
 
 
-
     @Override
     public List<WeeklyTimesheet> getAll() {
         return weeklyTimesheetRepo.findAll();
@@ -27,19 +26,5 @@ public class WeeklyTimesheetServiceImpl implements WeeklyTimesheetService {
         return weeklyTimesheetRepo.save(weeklyTimesheet);
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public List<WeeklyTimesheet> getByEmployeeIdAndMonth(String employeeId, String month) {
-        YearMonth ym = YearMonth.parse(month); // "2026-02" -> YearMonth
-        LocalDate startOfMonth = ym.atDay(1);
-        LocalDate endOfMonth = ym.atEndOfMonth();
 
-        return weeklyTimesheetRepo.findByEmployeeEmployeeIdAndWeekStartDateBetween(
-                employeeId, startOfMonth, endOfMonth);
-    }
-    @Override
-    @Transactional(readOnly = true)
-    public List<WeeklyTimesheet> getByEmployeeId(String employeeId) {
-        return weeklyTimesheetRepo.findByEmployeeEmployeeId(employeeId);
-    }
 }
