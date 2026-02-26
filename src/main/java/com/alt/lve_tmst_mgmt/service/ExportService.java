@@ -1,5 +1,6 @@
 package com.alt.lve_tmst_mgmt.service;
 
+import com.alt.lve_tmst_mgmt.dto.FinancialTrackerReportDto;
 import com.alt.lve_tmst_mgmt.dto.MonthlyEmployeeReportDto;
 import com.alt.lve_tmst_mgmt.repository.ReportRepo;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -32,8 +33,9 @@ public class ExportService {
             LocalDate monthEnd) {
 
         try {
+
             List<MonthlyEmployeeReportDto> reports =
-                    reportRepo.exportAllReports(sowId, monthStart, monthEnd);
+                    reportRepo.exportCompleteMonthlySOWReport(sowId, monthStart, monthEnd);
 
             ByteArrayOutputStream out = new ByteArrayOutputStream();
 
@@ -44,11 +46,11 @@ public class ExportService {
                 for (MonthlyEmployeeReportDto report : reports) {
 
                     Map<LocalDate, String> dayStatusMap =
-                            buildDayStatusMap(report, monthStart, monthEnd);
+                            buildDayStatusMap(report);
 
                     List<Object> row = new ArrayList<>();
 
-                    // ---- Static Columns ----
+                    // Static Columns
                     row.add(report.getEmployeeId());
                     row.add(report.getName());
                     row.add(report.getLocation());
@@ -58,28 +60,26 @@ public class ExportService {
                     row.add(report.getNumberOfLeaves());
                     row.add(report.getNumberOfHolidays());
 
-                    // ---- Dynamic Day Columns ----
+
+                    // Daily Columns
                     int totalDays = monthStart.lengthOfMonth();
-                    int[] weekTotals = new int[5];
 
                     for (int day = 1; day <= totalDays; day++) {
                         LocalDate currentDate = monthStart.withDayOfMonth(day);
-
                         String value = dayStatusMap.getOrDefault(currentDate, "X");
                         row.add(value);
-
-                        int weekIndex = (day - 1) / 7;
-                        if (weekIndex < 5) {
-                            weekTotals[weekIndex]++;
-                        }
                     }
 
-                    // ---- Week Totals ----
+
+                    // Weekly Hours FROM DATABASE
+
+                    int[] weekTotals = extractWeeklyHours(report);
+
                     for (int w : weekTotals) {
                         row.add(w);
                     }
 
-                    // ---- Compliance Flags ----
+                    // Compliance Flags
                     row.add(Boolean.TRUE.equals(report.getPtsSaved()) ? "YES" : "NO");
                     row.add(Boolean.TRUE.equals(report.getCofyUpdate()) ? "YES" : "NO");
                     row.add(Boolean.TRUE.equals(report.getCitiTraining()) ? "YES" : "NO");
@@ -99,18 +99,48 @@ public class ExportService {
         }
     }
 
-    // =========================
+    // ======================================================
+    // Extract Weekly Hours (ONLY from DB JSON)
+    // ======================================================
+
+    private int[] extractWeeklyHours(MonthlyEmployeeReportDto report) throws Exception {
+
+        int[] weekTotals = new int[5]; // W1–W5 default 0
+
+        if (report.getWeeklyHours() == null || report.getWeeklyHours().isEmpty()) {
+            return weekTotals;
+        }
+
+        JsonNode weeklyArray = objectMapper.readTree(report.getWeeklyHours());
+
+        int index = 0;
+
+        for (JsonNode node : weeklyArray) {
+
+            if (index >= 5) break;
+
+            int hours = node.has("hours") && !node.get("hours").isNull()
+                    ? node.get("hours").asInt()
+                    : 0;
+
+            weekTotals[index] = hours;
+
+            index++;
+        }
+
+        return weekTotals;
+    }
+
+    // ======================================================
     // Build Daily Status Map
-    // =========================
+    // ======================================================
 
     private Map<LocalDate, String> buildDayStatusMap(
-            MonthlyEmployeeReportDto report,
-            LocalDate start,
-            LocalDate end) throws Exception {
+            MonthlyEmployeeReportDto report) throws Exception {
 
         Map<LocalDate, String> map = new HashMap<>();
 
-        // ---- Holidays ----
+        // Holidays
         if (report.getHolidays() != null) {
             JsonNode holidays = objectMapper.readTree(report.getHolidays());
             for (JsonNode node : holidays) {
@@ -119,7 +149,7 @@ public class ExportService {
             }
         }
 
-        // ---- Leaves ----
+        // Leaves
         if (report.getLeaves() != null) {
             JsonNode leaves = objectMapper.readTree(report.getLeaves());
             for (JsonNode node : leaves) {
@@ -128,17 +158,18 @@ public class ExportService {
             }
         }
 
-        // ---- Timesheets ----
+        // Timesheets
         if (report.getTimesheets() != null) {
             JsonNode timesheets = objectMapper.readTree(report.getTimesheets());
             for (JsonNode node : timesheets) {
+
                 LocalDate date = LocalDate.parse(node.get("workDate").asText());
                 int hours = node.get("hoursLogged").asInt();
 
                 if (hours <= 4) {
-                    map.put(date, "HD"); // Half Day
+                    map.put(date, "HD");
                 } else {
-                    map.put(date, String.valueOf(hours));  // Present
+                    map.put(date, String.valueOf(hours));
                 }
             }
         }
@@ -146,9 +177,74 @@ public class ExportService {
         return map;
     }
 
-    // =========================
+    public ResponseEntity<byte[]> exportMonthlyFinancialTracker(
+            String sowId,
+            LocalDate monthStart,
+            LocalDate monthEnd) {
+
+        try {
+            List<FinancialTrackerReportDto> reports = new ArrayList<>();
+
+            if(sowId !=null) {
+                 reports = reportRepo.fetchMonthlyFinancialTrackerBySOW(sowId, monthStart, monthEnd);
+            } else {
+                 reports = reportRepo.fetchMonthlyFinancialTracker(monthStart, monthEnd);
+            }
+            if (reports == null) {
+                reports = new ArrayList<>();
+            }
+
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+            try (Writer writer = new OutputStreamWriter(out, StandardCharsets.UTF_8);
+                 CSVPrinter csvPrinter = new CSVPrinter(writer,
+                         CSVFormat.DEFAULT.withHeader(generateSowSummaryHeaders()))) {
+
+                System.out.println(reports);
+                for (FinancialTrackerReportDto report : reports) {
+
+                    List<Object> row = new ArrayList<>();
+
+                    row.add(report.getSowName());
+                    row.add(report.getSowId());
+                    row.add(report.getSoeId());
+                    row.add(report.getEmployeeId());
+                    row.add(report.getName());
+                    row.add(report.getPtsTotalMonthlyHours());
+                    row.add(report.getTotalLeaves());
+
+                    csvPrinter.printRecord(row);
+                }
+            }
+
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION,
+                            "attachment; filename=sow_monthly_summary.csv")
+                    .header(HttpHeaders.CONTENT_TYPE, "text/csv")
+                    .body(out.toByteArray());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error generating SOW monthly summary CSV", e);
+        }
+    }
+
+    private String[] generateSowSummaryHeaders() {
+
+        return new String[]{
+                "SOW Name",
+                "SOW ID",
+                "SOE ID",
+                "Employee ID",
+                "Name",
+                "PTS Total Monthly Hours",
+                "Total Leaves"
+        };
+    }
+
+    // ======================================================
     // Generate CSV Headers
-    // =========================
+    // ======================================================
 
     private String[] generateHeaders(LocalDate monthStart) {
 

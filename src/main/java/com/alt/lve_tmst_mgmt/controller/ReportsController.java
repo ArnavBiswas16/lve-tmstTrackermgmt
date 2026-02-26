@@ -55,7 +55,6 @@ public class ReportsController {
     }
 
 
-
     @GetMapping("/public/export/employee-reports")
     public ResponseEntity<byte[]> exportEmployeeReports(
             @RequestParam String sowId,
@@ -71,6 +70,26 @@ public class ReportsController {
         } catch (Exception e) {
             return ResponseEntity.status(500).body(null); // Handle errors if any
         }
+    }
+
+    @GetMapping("/public/export/financialTrackerBySOW")
+    public ResponseEntity<byte[]> exportMonthlyFinancialTrackerBySOW(
+            @RequestParam String sowId,
+            @RequestParam YearMonth month) {
+
+        LocalDate start = month.atDay(1);
+        LocalDate end = month.atEndOfMonth();
+
+        return exportService.exportMonthlyFinancialTracker(sowId, start, end);
+    }
+
+    @GetMapping("/public/export/financialTracker")
+    public ResponseEntity<byte[]> exportMonthlyFinancialTracker(@RequestParam YearMonth month) {
+
+        LocalDate start = month.atDay(1);
+        LocalDate end = month.atEndOfMonth();
+
+        return exportService.exportMonthlyFinancialTracker(null, start, end);
     }
 
 }
