@@ -200,7 +200,6 @@ public class ExportService {
                  CSVPrinter csvPrinter = new CSVPrinter(writer,
                          CSVFormat.DEFAULT.withHeader(generateSowSummaryHeaders()))) {
 
-                System.out.println(reports);
                 for (FinancialTrackerReportDto report : reports) {
 
                     List<Object> row = new ArrayList<>();

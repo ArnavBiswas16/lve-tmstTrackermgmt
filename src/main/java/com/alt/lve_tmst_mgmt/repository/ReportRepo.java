@@ -201,7 +201,6 @@ public interface ReportRepo extends JpaRepository<Employee, String> {
             ON lf.employee_id = e.employee_id
            AND lf.leave_date BETWEEN :monthStart AND :monthEnd
     
-        
         """;
 
 
