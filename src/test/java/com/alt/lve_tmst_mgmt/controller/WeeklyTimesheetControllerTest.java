@@ -30,7 +30,6 @@ class WeeklyTimesheetControllerTest {
     }
 
 
-
     @Test
     void createWeeklyTimesheet_shouldReturnCreatedTimesheet() {
         when(service.create(sampleWeeklyTimesheet)).thenReturn(sampleWeeklyTimesheet);

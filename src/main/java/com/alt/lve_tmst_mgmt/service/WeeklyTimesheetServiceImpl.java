@@ -1,21 +1,15 @@
-
 package com.alt.lve_tmst_mgmt.service;
-
 import com.alt.lve_tmst_mgmt.entity.WeeklyTimesheet;
 import com.alt.lve_tmst_mgmt.repository.WeeklyTimesheetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import java.time.LocalDate;
-import java.time.YearMonth;
+
 import java.util.List;
 
 @Service
 public class WeeklyTimesheetServiceImpl implements WeeklyTimesheetService {
     @Autowired
     WeeklyTimesheetRepository weeklyTimesheetRepo;
-
-
 
     @Override
     public List<WeeklyTimesheet> getAll() {
@@ -27,19 +21,5 @@ public class WeeklyTimesheetServiceImpl implements WeeklyTimesheetService {
         return weeklyTimesheetRepo.save(weeklyTimesheet);
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public List<WeeklyTimesheet> getByEmployeeIdAndMonth(String employeeId, String month) {
-        YearMonth ym = YearMonth.parse(month); // "2026-02" -> YearMonth
-        LocalDate startOfMonth = ym.atDay(1);
-        LocalDate endOfMonth = ym.atEndOfMonth();
 
-        return weeklyTimesheetRepo.findByEmployeeEmployeeIdAndWeekStartDateBetween(
-                employeeId, startOfMonth, endOfMonth);
-    }
-    @Override
-    @Transactional(readOnly = true)
-    public List<WeeklyTimesheet> getByEmployeeId(String employeeId) {
-        return weeklyTimesheetRepo.findByEmployeeEmployeeId(employeeId);
-    }
 }
