@@ -1,16 +1,15 @@
-
 spring:
   application:
     name: lve_tmst_mgmt
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/lveTmstMgmt
-    username: root
-    password: Pavan0438@
+    username: Arnav
+    password: password
   jpa:
     show-sql: true
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
 
 server:
   port: 8700

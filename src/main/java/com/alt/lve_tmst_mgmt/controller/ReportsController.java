@@ -1,14 +1,17 @@
 package com.alt.lve_tmst_mgmt.controller;
 
 import com.alt.lve_tmst_mgmt.dto.MonthlyEmployeeReportDto;
+import com.alt.lve_tmst_mgmt.service.ExportService;
 import com.alt.lve_tmst_mgmt.service.ReportService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
@@ -23,6 +26,9 @@ public class ReportsController {
 
     @Autowired
     ReportService reportService;
+
+    @Autowired
+    private ExportService exportService;
 
     @GetMapping("/public/reports/monthly")
     public Page<MonthlyEmployeeReportDto> getMonthlyReport(
@@ -46,6 +52,44 @@ public class ReportsController {
                 sowId, (report != null ? report.getTotalElements() : 0));
 
         return report;
+    }
+
+
+    @GetMapping("/public/export/employee-reports")
+    public ResponseEntity<byte[]> exportEmployeeReports(
+            @RequestParam String sowId,
+            @RequestParam YearMonth month
+            ) {
+        try {
+
+            LocalDate monthStart = month.atDay(1);
+            LocalDate monthEnd = month.atEndOfMonth();
+
+            // Get the CSV file content and return it as a downloadable response
+            return exportService.exportEmployeeReportsToCSV(sowId, monthStart, monthEnd);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(null); // Handle errors if any
+        }
+    }
+
+    @GetMapping("/public/export/financialTrackerBySOW")
+    public ResponseEntity<byte[]> exportMonthlyFinancialTrackerBySOW(
+            @RequestParam String sowId,
+            @RequestParam YearMonth month) {
+
+        LocalDate start = month.atDay(1);
+        LocalDate end = month.atEndOfMonth();
+
+        return exportService.exportMonthlyFinancialTracker(sowId, start, end);
+    }
+
+    @GetMapping("/public/export/financialTracker")
+    public ResponseEntity<byte[]> exportMonthlyFinancialTracker(@RequestParam YearMonth month) {
+
+        LocalDate start = month.atDay(1);
+        LocalDate end = month.atEndOfMonth();
+
+        return exportService.exportMonthlyFinancialTracker(null, start, end);
     }
 
 }
