@@ -35,4 +35,27 @@ public class Sow {
     private Employee manager;
 
 
+    public String getSowId() {
+        return sowId;
+    }
+
+    public void setSowId(String sowId) {
+        this.sowId = sowId;
+    }
+
+    public String getSowName() {
+        return sowName;
+    }
+
+    public void setSowName(String sowName) {
+        this.sowName = sowName;
+    }
+
+    public Employee getManager() {
+        return manager;
+    }
+
+    public void setManager(Employee manager) {
+        this.manager = manager;
+    }
 }

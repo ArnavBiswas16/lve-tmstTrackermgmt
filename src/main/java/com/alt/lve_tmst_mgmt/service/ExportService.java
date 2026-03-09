@@ -2,7 +2,9 @@ package com.alt.lve_tmst_mgmt.service;
 
 import com.alt.lve_tmst_mgmt.dto.FinancialTrackerReportDto;
 import com.alt.lve_tmst_mgmt.dto.MonthlyEmployeeReportDto;
+import com.alt.lve_tmst_mgmt.entity.Sow;
 import com.alt.lve_tmst_mgmt.repository.ReportRepo;
+import com.alt.lve_tmst_mgmt.repository.SowRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.csv.CSVFormat;
@@ -17,6 +19,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.*;
 
 @Service
@@ -24,6 +27,9 @@ public class ExportService {
 
     @Autowired
     private ReportRepo reportRepo;
+
+    @Autowired
+    private SowRepository sowRepository;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -33,10 +39,24 @@ public class ExportService {
             LocalDate monthEnd) {
 
         try {
+            System.out.println("hello");
+
+            String sowName= "xyz";
+            try{
+                Optional<Sow> sow = sowRepository.findBySowId(sowId);
+                sowName = sow.map(Sow::getSowName).orElse(null);
+            } catch (Exception e){
+               sowName ="notfound";
+                throw new RuntimeException("Name not found", e);
+            }
+//
+//            System.out.println(sowName);
+
+            YearMonth yearMonth = YearMonth.from(monthStart);
 
             List<MonthlyEmployeeReportDto> reports =
                     reportRepo.exportCompleteMonthlySOWReport(sowId, monthStart, monthEnd);
-
+            System.out.println(123);
             ByteArrayOutputStream out = new ByteArrayOutputStream();
 
             try (Writer writer = new OutputStreamWriter(out, StandardCharsets.UTF_8);
@@ -90,7 +110,7 @@ public class ExportService {
 
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION,
-                            "attachment; filename=employee_reports.csv")
+                            "attachment; filename=sow_monthly_report_"+sowName+"_"+yearMonth+".csv")
                     .header(HttpHeaders.CONTENT_TYPE, "text/csv")
                     .body(out.toByteArray());
 
@@ -99,10 +119,7 @@ public class ExportService {
         }
     }
 
-    // ======================================================
     // Extract Weekly Hours (ONLY from DB JSON)
-    // ======================================================
-
     private int[] extractWeeklyHours(MonthlyEmployeeReportDto report) throws Exception {
 
         int[] weekTotals = new int[5]; // W1–W5 default 0
@@ -131,10 +148,7 @@ public class ExportService {
         return weekTotals;
     }
 
-    // ======================================================
     // Build Daily Status Map
-    // ======================================================
-
     private Map<LocalDate, String> buildDayStatusMap(
             MonthlyEmployeeReportDto report) throws Exception {
 
@@ -241,9 +255,7 @@ public class ExportService {
         };
     }
 
-    // ======================================================
     // Generate CSV Headers
-    // ======================================================
 
     private String[] generateHeaders(LocalDate monthStart) {
 
