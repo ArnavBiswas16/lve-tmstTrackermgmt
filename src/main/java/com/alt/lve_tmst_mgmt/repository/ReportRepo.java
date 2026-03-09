@@ -18,133 +18,121 @@ public interface ReportRepo extends JpaRepository<Employee, String> {
 
     // BASE QUERY (USED FOR BOTH PAGINATION & EXPORT)
     String BASE_REPORT_QUERY = """
-        SELECT
-            e.employee_id,
-            e.name,
-            e.email,
-            e.role,
-            e.soe_id,
-            loc.city AS location,
-            e.sow_id,
-            esa.project_startdate AS assignmentStartDate,
-
-            -- ================= Timesheets =================
-            (
-                SELECT COALESCE(
-                    JSON_ARRAYAGG(
-                        JSON_OBJECT(
-                            'workDate', ts.work_date,
-                            'hoursLogged', ts.hours_logged
-                        )
-                        ORDER BY ts.work_date
-                    ),
-                    JSON_ARRAY()
-                )
-                FROM timesheet ts
-                WHERE ts.employee_id = e.employee_id
-                  AND ts.work_date BETWEEN :monthStart AND :monthEnd
-            ) AS timesheets,
-
-            -- ================= Leaves =================
-            (
-                SELECT COALESCE(
-                    JSON_ARRAYAGG(
-                        JSON_OBJECT(
-                            'startDate', lf.leave_date
-                        )
-                        ORDER BY lf.leave_date
-                    ),
-                    JSON_ARRAY()
-                )
-                FROM leave_forecast lf
-                WHERE lf.employee_id = e.employee_id
-                  AND lf.leave_date BETWEEN :monthStart AND :monthEnd
-            ) AS leaves,
-
-            -- ================= Holidays =================
-            (
-                SELECT COALESCE(
-                    JSON_ARRAYAGG(
-                        JSON_OBJECT(
-                            'date', h.date,
-                            'name', h.name,
-                            'type', h.type
-                        )
-                        ORDER BY h.date
-                    ),
-                    JSON_ARRAY()
-                )
-                FROM holiday h
-                WHERE h.location_id = e.location_id
-                  AND h.date BETWEEN :monthStart AND :monthEnd
-            ) AS holidays,
-
-            -- ================= Totals =================
-            (
-                SELECT COALESCE(SUM(ts.hours_logged), 0)
-                FROM timesheet ts
-                WHERE ts.employee_id = e.employee_id
-                  AND ts.work_date BETWEEN :monthStart AND :monthEnd
-            ) AS totalHours,
-
-            (
-                SELECT COUNT(*)
-                FROM leave_forecast lf
-                WHERE lf.employee_id = e.employee_id
-                  AND lf.leave_date BETWEEN :monthStart AND :monthEnd
-            ) AS numberOfLeaves,
-
-            (
-                SELECT COUNT(*)
-                FROM timesheet ts
-                WHERE ts.employee_id = e.employee_id
-                  AND ts.work_date BETWEEN :monthStart AND :monthEnd
-                  AND ts.hours_logged <= 4
-            ) AS numberOfHalfDays,
-
-            (
-                SELECT COUNT(*)
-                FROM holiday h
-                WHERE h.location_id = e.location_id
-                  AND h.date BETWEEN :monthStart AND :monthEnd
-            ) AS numberOfHolidays,
-
-            -- ================= Weekly Hours =================
-            (
-                SELECT COALESCE(
-                    JSON_ARRAYAGG(
-                        JSON_OBJECT(
-                            'weekStart', wt.week_start_date,
-                            'hours', wt.total_hours
-                        )
-                        ORDER BY wt.week_start_date
-                    ),
-                    JSON_ARRAY()
-                )
-                FROM weekly_timesheet wt
-                WHERE wt.employee_id = e.employee_id
-                  AND wt.week_start_date BETWEEN :monthStart AND :monthEnd
-            ) AS weeklyHours,
-
-            -- ================= Compliance =================
-            mc.pts_saved,
-            mc.cofy_update,
-            mc.citi_training
-
-        FROM employee e
-
-        JOIN location loc
-            ON loc.location_id = e.location_id
-
-        LEFT JOIN employee_sow_assignment esa
-            ON esa.employee_id = e.employee_id
-
-        LEFT JOIN monthly_compliance mc
-            ON mc.employee_id = e.employee_id
-           AND mc.month = :monthStart
-
-        WHERE e.sow_id = :sowId
-          AND e.is_active = 1
+       SELECT
+                                      e.employee_id,
+                                      e.name,
+                                      e.email,
+                                      e.role,
+                                      e.soe_id,
+                                      loc.city AS location,
+                                      e.sow_id,
+                                      esa.project_startdate AS assignmentStartDate,
+                                      (
+                                          SELECT COALESCE(
+                                              JSON_ARRAYAGG(
+                                                  JSON_OBJECT(
+                                                      'workDate', ts.work_date,
+                                                      'hoursLogged', ts.hours_logged
+                                                  )
+                                              ),
+                                              JSON_ARRAY()
+                                          )
+                                          FROM timesheet ts
+                                          WHERE ts.employee_id = e.employee_id
+                                            AND ts.work_date BETWEEN :monthStart AND :monthEnd
+                                      ) AS timesheets,
+            
+                                      (
+                                          SELECT COALESCE(
+                                              JSON_ARRAYAGG(
+                                                  JSON_OBJECT(
+                                                      'startDate', lf.leave_date
+                                                  )
+                                              ),
+                                              JSON_ARRAY()
+                                          )
+                                          FROM leave_forecast lf
+                                          WHERE lf.employee_id = e.employee_id
+                                            AND lf.leave_date BETWEEN :monthStart AND :monthEnd
+                                      ) AS leaves,
+            
+                                      (
+                                          SELECT COALESCE(
+                                              JSON_ARRAYAGG(
+                                                  JSON_OBJECT(
+                                                      'date', h.date,
+                                                      'name', h.name,
+                                                      'type', h.type
+                                                  )
+                                              ),
+                                              JSON_ARRAY()
+                                          )
+                                          FROM holiday h
+                                          WHERE h.location_id = e.location_id
+                                            AND h.date BETWEEN :monthStart AND :monthEnd
+                                      ) AS holidays,
+            
+                                      (
+                                          SELECT COALESCE(SUM(ts.hours_logged), 0)
+                                          FROM timesheet ts
+                                          WHERE ts.employee_id = e.employee_id
+                                            AND ts.work_date BETWEEN :monthStart AND :monthEnd
+                                      ) AS totalHours,
+            
+                                      (
+                                          SELECT COUNT(*)
+                                          FROM leave_forecast lf
+                                          WHERE lf.employee_id = e.employee_id
+                                            AND lf.leave_date BETWEEN :monthStart AND :monthEnd
+                                      ) AS numberOfLeaves,
+            
+                                      (
+                                          SELECT COUNT(*)
+                                          FROM timesheet ts
+                                          WHERE ts.employee_id = e.employee_id
+                                            AND ts.work_date BETWEEN :monthStart AND :monthEnd
+                                            AND ts.hours_logged <= 4
+                                      ) AS numberOfHalfDays,
+            
+                                      (
+                                          SELECT COUNT(*)
+                                          FROM holiday h
+                                          WHERE h.location_id = e.location_id
+                                            AND h.date BETWEEN :monthStart AND :monthEnd
+                                      ) AS numberOfHolidays,
+            
+                                      (
+                                          SELECT COALESCE(
+                                              JSON_ARRAYAGG(
+                                                  JSON_OBJECT(
+                                                      'weekStart', wt.week_start_date,
+                                                      'hours', wt.total_hours  
+                                                  )
+                                              ),
+                                              JSON_ARRAY()
+                                          )
+                                          FROM weekly_timesheet wt
+                                          WHERE wt.employee_id = e.employee_id
+                                            AND wt.week_start_date BETWEEN :monthStart AND :monthEnd
+                                      ) AS weeklyHours,
+            
+                                      mc.pts_saved,
+                                      mc.cofy_update,
+                                      mc.citi_training
+            
+                                  FROM employee e
+                                  JOIN location loc
+                                      ON loc.location_id = e.location_id
+            
+                                  LEFT JOIN EMPLOYEE_SOW_ASSIGNMENT esa
+                                      ON esa.employee_id = e.employee_id  -- assignment table join
+            
+                                  LEFT JOIN monthly_compliance mc
+                                      ON mc.employee_id = e.employee_id
+                                     AND mc.month = :monthStart
+            
+                                  WHERE e.sow_id = :sowId
+                                    AND e.is_active = 1
     """;
 
 
